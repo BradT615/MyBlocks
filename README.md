@@ -1,10 +1,10 @@
-# UI Component Library
+# MyBlocks
 
-A comprehensive platform that bridges the gap between designers and developers by providing an interactive gallery of UI components with code access, visual previews, and design specifications.
+A comprehensive platform that bridges the gap between designers and developers by providing an interactive gallery of UI components with code access, visual previews, and design specifications. Visit us at [myblocks.dev](https://myblocks.dev).
 
 ## Project Overview
 
-This UI Component Library serves as a centralized hub where teams can:
+MyBlocks serves as a centralized hub where teams can:
 
 - Browse, search, and filter components in a visual gallery
 - Upload and manage components with version tracking
