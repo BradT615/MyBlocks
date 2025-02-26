@@ -16,7 +16,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { FeatureCard } from "@/components/feature-card"
 import { TestimonialCard } from "@/components/testimonial-card"
-import { PricingCard } from "@/components/pricing-card"
+import { PricingSection } from "@/components/pricing-section"
 
 // Feature data
 const features: { icon: LucideIcon; title: string; description: string }[] = [
@@ -74,54 +74,6 @@ const testimonials = [
     quote: "Our team&apos;s productivity increased by 40% after we started using MyBlocks. The ability to share and collaborate on components is game-changing.",
     author: "Jessica Williams",
     role: "Engineering Manager",
-  },
-];
-
-// Pricing data
-const pricingPlans = [
-  {
-    name: "Free",
-    description: "Perfect for individuals getting started",
-    price: "$0",
-    features: [
-      "Store up to 50 components",
-      "Basic search functionality",
-      "Public sharing",
-      "Syntax highlighting",
-    ],
-    buttonText: "Get Started",
-    buttonVariant: "outline" as const,
-  },
-  {
-    name: "Pro",
-    description: "For professional developers and small teams",
-    price: "$12",
-    features: [
-      "Unlimited components",
-      "Advanced search with tags",
-      "Team sharing and permissions",
-      "Version history",
-      "Component categories",
-      "Export to various formats",
-    ],
-    popular: true,
-    buttonText: "Start Trial",
-    buttonVariant: "default" as const,
-  },
-  {
-    name: "Enterprise",
-    description: "For large teams and organizations",
-    price: "Custom",
-    features: [
-      "Everything in Pro",
-      "SSO authentication",
-      "API access",
-      "Dedicated support",
-      "Custom integrations",
-      "Advanced analytics",
-    ],
-    buttonText: "Contact Sales",
-    buttonVariant: "outline" as const,
   },
 ];
 
@@ -275,33 +227,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-20 bg-muted/50">
-        <div className="container">
-          <div className="text-center">
-            <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
-              Pricing Plans
-            </h2>
-            <p className="mx-auto mb-16 max-w-2xl text-muted-foreground">
-              Choose the plan that fits your needs, from solo developers to large teams.
-            </p>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {pricingPlans.map((plan) => (
-              <PricingCard
-                key={plan.name}
-                name={plan.name}
-                description={plan.description}
-                price={plan.price}
-                features={plan.features}
-                popular={plan.popular}
-                buttonText={plan.buttonText}
-                buttonVariant={plan.buttonVariant}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Pricing Section - Now a separate component */}
+      <PricingSection />
 
       {/* FAQ Section */}
       <section id="faq" className="py-20">
