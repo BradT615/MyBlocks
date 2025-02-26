@@ -64,7 +64,7 @@ function PricingCard({
             "border border-gray-200 dark:border-transparent",
             active 
               ? "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
-              : "bg-white/15 hover:bg-white/20 text-foreground hover:shadow-md dark:bg-white/15 bg-gray-50"
+              : "hover:bg-white/20 text-foreground hover:shadow-md dark:bg-white/15 bg-gray-50"
           )}
         >
           {buttonText}
