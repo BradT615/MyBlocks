@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MyUI - Store and Retrieve Your UI Components",
+  title: "MyBlocks - Store and Retrieve Your UI Components",
   description: "A SaaS platform for developers to store and retrieve their favorite UI components and styles",
 };
 

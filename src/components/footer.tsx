@@ -10,7 +10,7 @@ export function Footer() {
           <div>
             <Link href="/" className="flex items-center gap-2">
               <Code className="h-5 w-5" />
-              <span className="text-lg font-bold">MyUI</span>
+              <span className="text-lg font-bold">MyBlocks</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">
               Store, organize, and retrieve your favorite UI components and styles with ease.
@@ -89,7 +89,7 @@ export function Footer() {
         </div>
         <div className="mt-12 border-t pt-6">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} MyUI. All rights reserved.
+            © {new Date().getFullYear()} MyBlocks. All rights reserved.
           </p>
         </div>
       </div>

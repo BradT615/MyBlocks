@@ -1,10 +1,8 @@
 // src/app/page.tsx
 import Link from "next/link"
-import Image from "next/image"
 import { 
   Code, 
   CodeXml, 
-  Database, 
   FileCode, 
   LucideIcon, 
   Palette, 
@@ -63,17 +61,17 @@ const features: { icon: LucideIcon; title: string; description: string }[] = [
 // Testimonial data
 const testimonials = [
   {
-    quote: "MyUI has completely changed how I organize my UI components. I can quickly find and reuse code that I've written before, saving me countless hours.",
+    quote: "MyBlocks has completely changed how I organize my UI components. I can quickly find and reuse code that I&apos;ve written before, saving me countless hours.",
     author: "Sarah Johnson",
     role: "Frontend Developer",
   },
   {
-    quote: "As a designer who codes, keeping track of my components was always a challenge. MyUI bridges the gap perfectly, letting me store both design tokens and implementation.",
+    quote: "As a designer who codes, keeping track of my components was always a challenge. MyBlocks bridges the gap perfectly, letting me store both design tokens and implementation.",
     author: "Marcus Chen",
     role: "UI/UX Designer",
   },
   {
-    quote: "Our team's productivity increased by 40% after we started using MyUI. The ability to share and collaborate on components is game-changing.",
+    quote: "Our team&apos;s productivity increased by 40% after we started using MyBlocks. The ability to share and collaborate on components is game-changing.",
     author: "Jessica Williams",
     role: "Engineering Manager",
   },
@@ -141,7 +139,7 @@ export default function Home() {
                 Store and retrieve your <span className="gradient-text">favorite UI&nbsp;components</span>
               </h1>
               <p className="mb-8 max-w-md text-lg text-muted-foreground">
-                MyUI helps developers organize, store, and retrieve their code snippets and 
+                MyBlocks helps developers organize, store, and retrieve their code snippets and 
                 UI components in one centralized place.
               </p>
               <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
@@ -155,7 +153,7 @@ export default function Home() {
             </div>
             <div className="flex justify-center">
               <div className="relative h-80 w-full max-w-lg overflow-hidden rounded-lg border shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-sm">
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-gray-400/10 backdrop-blur-sm">
                   <div className="p-8">
                     <div className="flex items-center mb-6">
                       <CodeXml className="h-8 w-8 text-primary" />
@@ -261,7 +259,7 @@ export default function Home() {
               What Developers Say
             </h2>
             <p className="mx-auto mb-16 max-w-2xl text-muted-foreground">
-              Join thousands of developers who use MyUI daily for their workflow.
+              Join thousands of developers who use MyBlocks daily for their workflow.
             </p>
           </div>
           <div className="grid gap-8 md:grid-cols-3">
@@ -319,9 +317,9 @@ export default function Home() {
           <div className="mx-auto max-w-3xl">
             <div className="space-y-6">
               <div className="rounded-lg border p-6">
-                <h3 className="mb-3 text-lg font-medium">Can I use MyUI for free?</h3>
+                <h3 className="mb-3 text-lg font-medium">Can I use MyBlocks for free?</h3>
                 <p className="text-muted-foreground">
-                  Yes, we offer a generous free tier that allows you to store up to 50 components with basic features. It's perfect for solo developers or those just getting started.
+                  Yes, we offer a generous free tier that allows you to store up to 50 components with basic features. It&apos;s perfect for solo developers or those just getting started.
                 </p>
               </div>
               <div className="rounded-lg border p-6">
@@ -331,7 +329,7 @@ export default function Home() {
                 </p>
               </div>
               <div className="rounded-lg border p-6">
-                <h3 className="mb-3 text-lg font-medium">Can I integrate MyUI with my existing tools?</h3>
+                <h3 className="mb-3 text-lg font-medium">Can I integrate MyBlocks with my existing tools?</h3>
                 <p className="text-muted-foreground">
                   Yes, our Enterprise plan includes API access and custom integrations for popular development tools and workflows. We also offer extensions for VS Code and other editors.
                 </p>
@@ -355,7 +353,7 @@ export default function Home() {
               Ready to organize your UI components?
             </h2>
             <p className="mx-auto mb-8 max-w-2xl">
-              Join thousands of developers who use MyUI to boost their productivity.
+              Join thousands of developers who use MyBlocks to boost their productivity.
             </p>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
               <Button asChild size="lg" variant="outline" className="bg-primary-foreground text-primary hover:bg-primary-foreground/90">

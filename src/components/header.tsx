@@ -17,7 +17,7 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Code className="h-6 w-6" />
-            <span className="text-xl font-bold">MyUI</span>
+            <span className="text-xl font-bold">MyBlocks</span>
           </Link>
         </div>
         
