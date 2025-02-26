@@ -1,6 +1,6 @@
 // src/components/footer.tsx
 import Link from "next/link"
-import { Code } from "lucide-react"
+import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 
 export function Footer() {
   return (
@@ -8,8 +8,8 @@ export function Footer() {
       <div className="container py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
-            <Link href="/" className="flex items-center gap-2">
-              <Code className="h-5 w-5" />
+            <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
+              <MyBlocksLogo width={24} height={24} animated variant="filled" />
               <span className="text-lg font-bold">MyBlocks</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground">

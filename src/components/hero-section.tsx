@@ -2,6 +2,7 @@
 import Link from "next/link"
 import { CodeXml } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 
 export function HeroSection() {
   return (
@@ -28,14 +29,10 @@ export function HeroSection() {
           <div className="flex justify-center">
             <div className="relative h-80 w-full max-w-lg overflow-hidden rounded-lg border shadow-xl">
               <div className="absolute inset-0 bg-gradient-to-br from-gray-500/10 to-gray-400/10 backdrop-blur-sm">
-                <div className="p-8">
-                  <div className="flex items-center mb-6">
-                    <CodeXml className="h-8 w-8 text-primary" />
-                    <div className="ml-4">
-                      <div className="h-4 w-32 rounded bg-primary/20"></div>
-                      <div className="mt-2 h-3 w-24 rounded bg-primary/10"></div>
-                    </div>
-                  </div>
+                <div className="flex justify-center pt-8">
+                  <MyBlocksLogo width={120} height={120} variant="filled" animated />
+                </div>
+                <div className="p-8 pt-4">
                   <div className="space-y-3">
                     <div className="h-12 rounded bg-primary/5 flex items-center px-4">
                       <div className="h-6 w-6 rounded-full bg-primary/10"></div>

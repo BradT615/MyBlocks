@@ -2,11 +2,12 @@
 "use client"
 
 import Link from "next/link"
-import { Code, Menu } from "lucide-react"
+import { Menu } from "lucide-react"
 import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -15,8 +16,8 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <Link href="/" className="flex items-center gap-2">
-            <Code className="h-6 w-6" />
+          <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
+            <MyBlocksLogo width={32} height={32} animated variant="filled" />
             <span className="text-xl font-bold">MyBlocks</span>
           </Link>
         </div>
