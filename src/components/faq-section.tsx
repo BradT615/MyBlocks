@@ -1,7 +1,62 @@
 // src/components/faq-section.tsx
+"use client"
+
 import { faqData } from "@/data/faq-data"
+import { cn } from "@/lib/utils"
+import { useState } from "react"
+import { ChevronDown } from "lucide-react"
+
+interface FAQItemProps {
+  question: string
+  answer: string
+  isOpen: boolean
+  onClick: () => void
+}
+
+function FAQItem({ question, answer, isOpen, onClick }: FAQItemProps) {
+  return (
+    <div 
+      className={cn(
+        "rounded-xl overflow-hidden border transition-all duration-300",
+        "bg-card shadow-sm hover:shadow-md cursor-pointer",
+        isOpen ? "border-primary/20" : "border-border"
+      )}
+      onClick={onClick}
+    >
+      <div className="p-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium text-card-foreground/90">
+            {question}
+          </h3>
+          <div className="flex items-center justify-center w-6 h-6">
+            <ChevronDown className={cn(
+              "h-5 w-5 text-muted-foreground transition-transform duration-300",
+              isOpen && "rotate-180"
+            )} />
+          </div>
+        </div>
+        <div className={cn(
+          "grid transition-all duration-300 ease-in-out",
+          isOpen ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
+        )}>
+          <div className="overflow-hidden">
+            <p className="text-muted-foreground">
+              {answer}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export function FAQSection() {
+  const [openQuestion, setOpenQuestion] = useState<string | null>("Can I use MyBlocks for free?")
+
+  const toggleQuestion = (question: string) => {
+    setOpenQuestion(openQuestion === question ? null : question)
+  }
+
   return (
     <section id="faq" className="py-20">
       <div className="container">
@@ -14,14 +69,15 @@ export function FAQSection() {
           </p>
         </div>
         <div className="mx-auto max-w-3xl">
-          <div className="space-y-6">
+          <div className="space-y-4">
             {faqData.map((item) => (
-              <div key={item.question} className="rounded-lg border p-6">
-                <h3 className="mb-3 text-lg font-medium">{item.question}</h3>
-                <p className="text-muted-foreground">
-                  {item.answer}
-                </p>
-              </div>
+              <FAQItem
+                key={item.question}
+                question={item.question}
+                answer={item.answer}
+                isOpen={openQuestion === item.question}
+                onClick={() => toggleQuestion(item.question)}
+              />
             ))}
           </div>
         </div>

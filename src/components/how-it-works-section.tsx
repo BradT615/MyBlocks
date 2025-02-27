@@ -1,5 +1,6 @@
 // src/components/how-it-works-section.tsx
 import { howItWorksData } from "@/data/how-it-works-data"
+import { cn } from "@/lib/utils"
 
 export function HowItWorksSection() {
   return (
@@ -13,13 +14,22 @@ export function HowItWorksSection() {
             A simple workflow to boost your productivity.
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {howItWorksData.map((step) => (
-            <div key={step.title} className="flex flex-col items-center text-center">
+            <div 
+              key={step.title} 
+              className={cn(
+                "rounded-xl flex flex-col items-center text-center p-8",
+                "border border-border transition-all duration-300 ease-in-out",
+                "bg-card shadow-md hover:shadow-xl hover:scale-[1.01]"
+              )}
+            >
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-6">
-                <step.icon className="h-8 w-8 text-primary" />
+                <step.icon className="h-8 w-8 text-primary/70" />
               </div>
-              <h3 className="mb-2 text-xl font-semibold">{step.title}</h3>
+              <h3 className="mb-2 text-xl font-semibold text-card-foreground/90">
+                {step.title}
+              </h3>
               <p className="text-muted-foreground">
                 {step.description}
               </p>

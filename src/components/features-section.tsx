@@ -1,13 +1,7 @@
 // src/components/features-section.tsx
 import { LucideIcon } from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
 import { featuresData } from "@/data/features-data"
+import { cn } from "@/lib/utils"
 
 // FeatureCard component (internal to this file)
 interface FeatureCardProps {
@@ -16,19 +10,30 @@ interface FeatureCardProps {
   description: string
 }
 
-function FeatureCard({ icon: Icon, title, description }: FeatureCardProps) {
+function FeatureCard({ 
+  icon: Icon, 
+  title, 
+  description
+}: FeatureCardProps) {
   return (
-    <Card className="border-none shadow-md transition-all duration-200 hover:shadow-lg">
-      <CardHeader>
+    <div
+      className={cn(
+        "rounded-xl flex flex-col overflow-hidden relative h-full",
+        "border transition-all duration-300 ease-in-out",
+        "bg-card shadow-md hover:shadow-xl p-6",
+        "border-border hover:scale-[1.01] hover:border-border/80",
+      )}
+    >
+      <div className="flex flex-col items-start mb-4">
         <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
-          <Icon className="h-6 w-6 text-primary" />
+          <Icon className="h-6 w-6 text-primary/70" />
         </div>
-        <CardTitle>{title}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <CardDescription className="text-md">{description}</CardDescription>
-      </CardContent>
-    </Card>
+        <h3 className="text-xl font-semibold text-card-foreground/90">{title}</h3>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        {description}
+      </p>
+    </div>
   )
 }
 
