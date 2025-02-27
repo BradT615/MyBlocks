@@ -1,6 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.dev/svgjs" width="1640" height="1680"><svg xmlns="http://www.w3.org/2000/svg" viewBox="260 52 1640 1680">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="260 52 1640 1680">
+  <style>
+    .block {
+      fill: rgba(0, 0, 0, 0.8);
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .block {
+        fill: rgba(255, 255, 255, 0.8);
+      }
+    }
+  </style>
+  
   <!-- Front Block -->
-  <path d="M1712 1545 
+  <path class="block" d="M1712 1545 
       L1900 1357 
       L1900 797 
       L1900 237 
@@ -14,10 +26,10 @@
       L410 1727 
       L967 1730 
       L1525 1732 
-      L1712 1545 Z" fill="rgba(0, 0, 0, 0.8)"></path>
+      L1712 1545 Z"></path>
   
   <!-- Back Block -->
-  <path d="M448 237 
+  <path class="block" d="M448 237 
       L260 425 
       L260 985 
       L260 1545 
@@ -31,7 +43,5 @@
       L1750 55 
       L1193 52 
       L635 50 
-      L448 237 Z" fill="rgba(0, 0, 0, 0.8)"></path>
-</svg><style>@media (prefers-color-scheme: light) { :root { filter: none; } }
-@media (prefers-color-scheme: dark) { :root { filter: none; } }
-</style></svg>
+      L448 237 Z"></path>
+</svg>

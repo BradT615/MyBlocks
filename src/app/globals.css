@@ -61,7 +61,7 @@
 @layer base {
   :root {
     /* Light mode - inverse of dark mode */
-    --background: 0 0% 100%;
+    --background: 0 0% 98%;
     --foreground: 0 0% 2%;
     --card: 0 0% 97%;
     --card-foreground: 0 0% 2%;

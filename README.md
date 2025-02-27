@@ -39,27 +39,9 @@ The platform is designed to solve collaboration challenges between design and de
 - **PostCSS**: For CSS analysis and transformation
 
 ### Deployment & Payments
-- **Vercel/Netlify**: Hosting and deployment platform
+- **Vercel**: Hosting and deployment platform
 - **GitHub Actions**: CI/CD pipeline
 - **Stripe**: Payment processing and subscription management
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-# Install dependencies
-npm install
-# or
-yarn install
-
-# Start development server
-npm run dev
-# or
-yarn dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## Features
 
