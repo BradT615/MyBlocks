@@ -26,16 +26,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-          {/* Light mode favicon */}
-          <link rel="icon" href="/favicon-light.ico" sizes="48x48" />
-
-          {/* Dark mode favicon */}
-          <link
-            rel="icon"
-            href="/favicon-dark.ico"
-            sizes="48x48"
-            media="(prefers-color-scheme: dark)"
-          />
+        <link rel="icon" href="/favicon-light.ico" sizes="any" />
+        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon-dark.ico" media="(prefers-color-scheme: dark)" />
 
           {/* Web App Manifest */}
           <link rel="manifest" href="/manifest.json" />

@@ -60,49 +60,49 @@
 
 @layer base {
   :root {
-    /* Light mode - pure grayscale */
+    /* Light mode - inverse of dark mode */
     --background: 0 0% 100%;
-    --foreground: 0 0% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
-    --primary: 0 0% 15%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 25%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 0 0% 94%;
-    --accent-foreground: 0 0% 15%;
+    --foreground: 0 0% 2%;
+    --card: 0 0% 99%;
+    --card-foreground: 0 0% 2%;
+    --popover: 0 0% 95%;
+    --popover-foreground: 0 0% 2%;
+    --primary: 0 0% 10%;
+    --primary-foreground: 0 0% 95%;
+    --secondary: 0 0% 90%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 35%;
+    --accent: 0 0% 85%;
+    --accent-foreground: 0 0% 2%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
+    --border: 0 0% 85%;
     --input: 0 0% 90%;
-    --ring: 0 0% 80%;
+    --ring: 0 0% 20%;
     --radius: 0.5rem;
   }
 
   .dark {
-    /* Dark mode - pure grayscale matching the image */
-    --background: 0 0% 10%;
+    /* Updated Dark mode - pure black background */
+    --background: 0 0% 0%; /* Changed to pure black */
     --foreground: 0 0% 98%;
-    --card: 0 0% 12%;
+    --card: 0 0% 5%; /* Made darker */
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 12%;
+    --popover: 0 0% 5%; /* Made darker */
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 10%;
-    --secondary: 0 0% 15%;
+    --primary: 0 0% 90%;
+    --primary-foreground: 0 0% 5%; /* Made darker */
+    --secondary: 0 0% 10%; /* Made darker */
     --secondary-foreground: 0 0% 90%;
-    --muted: 0 0% 15%;
+    --muted: 0 0% 10%; /* Made darker */
     --muted-foreground: 0 0% 65%;
-    --accent: 0 0% 20%;
+    --accent: 0 0% 15%; /* Made darker */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 15%;
+    --border: 0 0% 15%; /* Made darker */
+    --input: 0 0% 10%; /* Made darker */
     --ring: 0 0% 80%;
   }
 }

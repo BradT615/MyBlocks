@@ -28,50 +28,43 @@ function PricingCard({
   return (
     <div 
       className={cn(
-        "rounded-xl flex flex-col overflow-hidden relative", // Added relative positioning
-        "border-1 border-border dark:border-[rgba(255,255,255,0.1)]",
-        "bg-card", // Removed the gradient from here
-        "transition-all duration-300 ease-in-out cursor-pointer",
-        "shadow-md hover:shadow-xl",
-        active ? 
-          "ring-1 ring-[rgba(255,255,255,0.2)] transform scale-[1.03] shadow-xl hover:scale-[1.03]" : 
-          "hover:scale-[1.02]"
+        "rounded-xl flex flex-col overflow-hidden relative",
+        "border transition-all duration-300 ease-in-out cursor-pointer",
+        "bg-card shadow-md hover:shadow-xl",
+        active 
+          ? "border-primary/20 dark:border-primary/20 transform scale-[1.03] shadow-xl ring-1 ring-primary/20 dark:bg-[radial-gradient(85%_75%_at_50%_-10%,#212121_0%,#080808_100%)]" 
+          : "border-border hover:scale-[1.01] hover:border-border/80",
       )}
       onClick={onSelect}
-      style={{
-        // Using a simplified gradient with just two color stops to prevent banding
-        backgroundImage: `radial-gradient(100% 75% at 12.9% -19.7%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.03) 100%)`,
-      }}
     >
-      
+          
       <div className="p-6">
         <div className="mb-4">
-          <h3 className="text-xl font-medium text-foreground">{name}</h3>
+          <h3 className="text-xl font-medium text-card-foreground">{name}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
         
         <div className="mb-6">
           <div className="flex items-baseline">
-            <span className="text-2xl font-medium text-foreground/90">{price}</span>
-            {price !== "Custom" && <span className="ml-1 text-sm text-foreground/70">/year</span>}
+            <span className="text-2xl font-medium text-card-foreground">{price}</span>
+            {price !== "Custom" && <span className="ml-1 text-sm text-muted-foreground">/month</span>}
           </div>
         </div>
         
         <a 
           href="/register" 
           className={cn(
-            "block w-full py-2 px-4 text-center rounded-lg text-sm font-medium transition-all duration-100",
-            "border border-gray-200 dark:border-transparent",
+            "block w-full py-2 px-6 text-center rounded-lg text-sm font-medium transition-all duration-100",
             active 
-              ? "bg-primary text-primary-foreground hover:bg-primary/90 border-primary" 
-              : "hover:bg-white/20 text-foreground hover:shadow-md dark:bg-white/15 bg-gray-50"
+              ? "bg-primary text-primary-foreground hover:bg-primary/80 border border-primary" 
+              : "bg-secondary text-secondary-foreground hover:bg-secondary/80 border border-secondary"
           )}
         >
           {buttonText}
         </a>
       </div>
       
-      <div className="h-px w-10/12 mx-auto bg-[rgba(229,229,229,0.1)]"></div>
+      <div className="h-px w-10/12 mx-auto bg-border"></div>
       
       <div className="p-6">
         <ul className="space-y-4">
@@ -83,7 +76,7 @@ function PricingCard({
                 focusable="false" 
                 className={cn(
                   "w-5 h-5 mr-3 flex-shrink-0 transition-colors duration-300",
-                  active ? "text-primary" : "text-foreground/70"
+                  active ? "text-primary" : "text-accent-foreground/70"
                 )}
               >
                 <g>
@@ -92,7 +85,7 @@ function PricingCard({
               </svg>
               <span className={cn(
                 "text-sm", 
-                active ? "text-foreground" : "text-foreground/70"
+                active ? "text-card-foreground" : "text-card-foreground/70"
               )}>
                 {feature}
               </span>
@@ -109,10 +102,10 @@ export function PricingSection() {
   const [selectedPlan, setSelectedPlan] = useState<string>("Pro")
 
   return (
-    <section id="pricing" className="py-20 bg-muted/50">
+    <section id="pricing" className="py-20 bg-background">
       <div className="container">
         <div className="text-center">
-          <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl">
+          <h2 className="mb-4 text-3xl font-bold tracking-tight md:text-4xl text-foreground">
             Pricing Plans
           </h2>
           <p className="mx-auto mb-16 max-w-2xl text-muted-foreground">
