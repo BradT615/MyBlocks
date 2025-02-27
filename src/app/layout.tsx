@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -17,24 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MyBlocks - Store and Retrieve Your UI Components",
   description: "A SaaS platform for developers to store and retrieve their favorite UI components and styles",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.ico",
-        sizes: "48x48",
-        type: "image/x-icon",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: {
-      url: "/apple-icon.png",
-      type: "image/png",
-      sizes: "180x180",
-    },
-  },
 };
 
 export default function RootLayout({
@@ -44,6 +25,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+          {/* Light mode favicon */}
+          <link rel="icon" href="/favicon-light.ico" sizes="48x48" />
+
+          {/* Dark mode favicon */}
+          <link
+            rel="icon"
+            href="/favicon-dark.ico"
+            sizes="48x48"
+            media="(prefers-color-scheme: dark)"
+          />
+
+          {/* Web App Manifest */}
+          <link rel="manifest" href="/manifest.json" />
+        </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"

@@ -3,6 +3,7 @@
 
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
+import React, { useState, useEffect } from "react"
 
 interface MyBlocksLogoProps {
   className?: string
@@ -16,28 +17,35 @@ export function MyBlocksLogo({
   className, 
   width = 40, 
   height = 40,
-  variant = "outline",
+  variant = "default",
   animated = false
 }: MyBlocksLogoProps) {
   const { resolvedTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
   
-  // Theme-based colors
-  const strokeColor = resolvedTheme === "dark" ? "#FFFFFF" : "#000000"
+  // Ensure component only renders on client
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    // Return a placeholder or null during server-side rendering
+    return null
+  }
   
-  // Handle different variants
-  let fillColor = "transparent"
-  let frontBlockFill = "transparent"
-  let backBlockFill = "transparent"
+  let blockFill = "transparent"
+  let strokeColor = "transparent"
   
   if (variant === "filled") {
-    frontBlockFill = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"
-    backBlockFill = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.05)"
+    blockFill = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"
+  } else if (variant === "outline") {
+    strokeColor = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)"
   }
 
   return (
     <svg 
       xmlns="http://www.w3.org/2000/svg" 
-      viewBox="210 0 1740 1882" 
+      viewBox="260 52 1640 1680" 
       width={width} 
       height={height} 
       className={cn(
@@ -45,6 +53,20 @@ export function MyBlocksLogo({
         className
       )}
     >
+      {/* Border */}
+      {(variant === "outline" || variant === "filled") && (
+        <rect 
+          x="260" 
+          y="52" 
+          width="1640" 
+          height="1680" 
+          fill="none" 
+          stroke={strokeColor}
+          strokeWidth="10"
+          className={animated ? "transition-all duration-500 ease-in-out" : ""}
+        />
+      )}
+      
       {/* Front Block */}
       <path 
         d="M1712 1545 
@@ -62,9 +84,7 @@ export function MyBlocksLogo({
           L967 1730 
           L1525 1732 
           L1712 1545 Z"
-        fill={frontBlockFill} 
-        stroke={strokeColor} 
-        strokeWidth="5"
+        fill={blockFill} 
         className={animated ? "transition-all duration-500 ease-in-out" : ""}
       />
       
@@ -85,9 +105,7 @@ export function MyBlocksLogo({
           L1193 52 
           L635 50 
           L448 237 Z" 
-        fill={backBlockFill} 
-        stroke={strokeColor} 
-        strokeWidth="5"
+        fill={blockFill} 
         className={animated ? "transition-all duration-500 ease-in-out" : ""}
       />
     </svg>
