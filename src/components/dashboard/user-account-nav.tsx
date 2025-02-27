@@ -11,11 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { createClient } from "@/utils/supabase/client"
 
 export function UserAccountNav() {
   const router = useRouter()
-  const supabase = createClient()
   
   const handleSignOut = async () => {
     await fetch("/auth/signout", { method: "POST" })

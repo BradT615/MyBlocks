@@ -26,7 +26,7 @@ export default async function DashboardPage() {
             </div>
             <div className="text-2xl font-bold">0</div>
             <p className="text-xs text-muted-foreground">
-              You haven't created any components yet
+              You haven&apos;t created any components yet
             </p>
           </div>
           

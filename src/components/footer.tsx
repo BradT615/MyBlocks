@@ -1,7 +1,6 @@
 // src/components/footer.tsx
 import Link from "next/link"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
-import { cn } from "@/lib/utils"
 
 interface FooterLinkProps {
   href: string

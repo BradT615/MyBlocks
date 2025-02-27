@@ -1,6 +1,5 @@
 // src/components/hero-section.tsx
 import Link from "next/link"
-import { CodeXml } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { cn } from "@/lib/utils"
