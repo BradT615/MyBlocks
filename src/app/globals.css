@@ -63,7 +63,7 @@
     /* Light mode - inverse of dark mode */
     --background: 0 0% 100%;
     --foreground: 0 0% 2%;
-    --card: 0 0% 99%;
+    --card: 0 0% 97%;
     --card-foreground: 0 0% 2%;
     --popover: 0 0% 95%;
     --popover-foreground: 0 0% 2%;
@@ -87,7 +87,7 @@
     /* Updated Dark mode - pure black background */
     --background: 0 0% 0%; /* Changed to pure black */
     --foreground: 0 0% 98%;
-    --card: 0 0% 5%; /* Made darker */
+    --card: 0 0% 3%; /* Made darker */
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 5%; /* Made darker */
     --popover-foreground: 0 0% 98%;
