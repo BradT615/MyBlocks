@@ -25,7 +25,7 @@ export function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:grid-cols-4 max-sm:text-center">
           <div>
             <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
-              <MyBlocksLogo width={24} height={24} animated variant="filled" />
+              <MyBlocksLogo width={24} height={24} variant="filled" />
               <span className="text-lg font-bold">MyBlocks</span>
             </Link>
             <p className="mt-4 text-sm text-muted-foreground text-start">
