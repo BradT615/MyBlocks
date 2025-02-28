@@ -17,7 +17,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             href="/dashboard" 
             className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90"
           >
-            <MyBlocksLogo width={32} height={32} animated variant="filled" />
+            <MyBlocksLogo width={32} height={32} variant="filled" />
             <span className="text-xl font-bold">MyBlocks</span>
           </Link>
           <UserAccountNav />

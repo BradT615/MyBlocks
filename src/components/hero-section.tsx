@@ -43,7 +43,7 @@ export function HeroSection() {
             )}>
               <div className="absolute inset-0 bg-gradient-to-br from-background to-muted/10 backdrop-blur-sm">
                 <div className="flex justify-center pt-8">
-                  <MyBlocksLogo width={120} height={120} variant="filled" animated />
+                  <MyBlocksLogo width={120} height={120} variant="filled" />
                 </div>
                 <div className="p-8 pt-4">
                   <div className="space-y-3">

@@ -17,7 +17,7 @@ export function Header() {
       <div className="w-full px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
           <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
-            <MyBlocksLogo width={32} height={32} animated variant="filled" />
+            <MyBlocksLogo width={32} height={32} variant="filled" />
             <span className="text-xl font-bold">MyBlocks</span>
           </Link>
         </div>

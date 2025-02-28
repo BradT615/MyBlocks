@@ -1,4 +1,3 @@
-// src/components/MyBlocksLogo.tsx
 "use client"
 
 import { useTheme } from "next-themes"
@@ -10,15 +9,13 @@ interface MyBlocksLogoProps {
   width?: number
   height?: number
   variant?: "default" | "outline" | "filled"
-  animated?: boolean
 }
 
 export function MyBlocksLogo({ 
   className, 
   width = 40, 
   height = 40,
-  variant = "default",
-  animated = false
+  variant = "default"
 }: MyBlocksLogoProps) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -48,10 +45,7 @@ export function MyBlocksLogo({
       viewBox="260 52 1640 1680" 
       width={width} 
       height={height} 
-      className={cn(
-        animated && "transition-transform duration-300 group-hover:scale-110",
-        className
-      )}
+      className={cn(className)}
     >
       {/* Border */}
       {(variant === "outline" || variant === "filled") && (
@@ -63,7 +57,6 @@ export function MyBlocksLogo({
           fill="none" 
           stroke={strokeColor}
           strokeWidth="10"
-          className={animated ? "transition-all duration-500 ease-in-out" : ""}
         />
       )}
       
@@ -85,7 +78,6 @@ export function MyBlocksLogo({
           L1525 1732 
           L1712 1545 Z"
         fill={blockFill} 
-        className={animated ? "transition-all duration-500 ease-in-out" : ""}
       />
       
       {/* Back Block */}
@@ -105,8 +97,7 @@ export function MyBlocksLogo({
           L1193 52 
           L635 50 
           L448 237 Z" 
-        fill={blockFill} 
-        className={animated ? "transition-all duration-500 ease-in-out" : ""}
+        fill={blockFill}
       />
     </svg>
   )

@@ -77,7 +77,7 @@
     --accent-foreground: 0 0% 2%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 85%;
+    --border: 0 0% 70%; /* Increased visibility from 85% to 70% */
     --input: 0 0% 90%;
     --ring: 0 0% 20%;
     --radius: 0.5rem;
@@ -101,7 +101,7 @@
     --accent-foreground: 0 0% 98%;
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 15%; /* Made darker */
+    --border: 0 0% 40%; /* Increased visibility from 15% to 25% */
     --input: 0 0% 10%; /* Made darker */
     --ring: 0 0% 80%;
   }
