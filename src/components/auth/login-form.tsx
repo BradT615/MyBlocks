@@ -66,12 +66,11 @@ export function LoginForm() {
               type="email"
               placeholder="name@example.com"
               required
-              className={`h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm transition-all focus-visible:ring-primary ${
-                emailError ? "border-red-500 pr-10" : ""
-              }`}
+              className={emailError ? "border-red-500 pr-10" : ""}
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username email"
             />
             {emailError && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
@@ -104,8 +103,9 @@ export function LoginForm() {
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               required
-              className="h-12 rounded-lg border-border/50 bg-background/70 pr-10 backdrop-blur-sm transition-all focus-visible:ring-primary"
+              className="pr-10"
               disabled={isLoading}
+              autoComplete="current-password"
             />
             <button
               type="button"

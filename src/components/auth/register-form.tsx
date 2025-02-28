@@ -80,10 +80,10 @@ export function RegisterForm() {
             id="fullName"
             name="fullName"
             placeholder="John Doe"
-            className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm transition-all focus-visible:ring-primary"
             disabled={isLoading}
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
+            autoComplete="name"
           />
         </div>
         
@@ -99,12 +99,11 @@ export function RegisterForm() {
               type="email"
               placeholder="name@example.com"
               required
-              className={`h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm transition-all focus-visible:ring-primary ${
-                emailError ? "border-red-500 pr-10" : ""
-              }`}
+              className={emailError ? "border-red-500 pr-10" : ""}
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username email"
             />
             {emailError && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2 text-red-500">
@@ -129,12 +128,11 @@ export function RegisterForm() {
               type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               required
-              className={`h-12 rounded-lg border-border/50 bg-background/70 pr-10 backdrop-blur-sm transition-all focus-visible:ring-primary ${
-                passwordError ? "border-red-500" : ""
-              }`}
+              className={passwordError ? "border-red-500 pr-10" : "pr-10"}
               disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
             />
             <button
               type="button"
