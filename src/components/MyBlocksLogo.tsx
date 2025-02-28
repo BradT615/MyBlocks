@@ -41,8 +41,8 @@ export function MyBlocksLogo({
 
   return (
     <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="260 52 1640 1680" 
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
       width={width} 
       height={height} 
       className={cn(className)}
@@ -62,41 +62,27 @@ export function MyBlocksLogo({
       
       {/* Front Block */}
       <path 
-        d="M1712 1545 
-          L1900 1357 
-          L1900 797 
-          L1900 237 
-          L1715 422 
-          L1530 607 
-          L1528 982 
-          L1525 1357 
-          L1150 1360 
-          L775 1362 
-          L592 1545 
-          L410 1727 
-          L967 1730 
-          L1525 1732 
-          L1712 1545 Z"
+        d="M5 0
+        L0 5 
+        L0 21 
+        L5 16
+        L5 5
+        L16 5 
+        L21 0 
+        L5 0"
         fill={blockFill} 
       />
       
       {/* Back Block */}
       <path 
-        d="M448 237 
-          L260 425 
-          L260 985 
-          L260 1545 
-          L445 1360 
-          L630 1175 
-          L632 800 
-          L635 425 
-          L1010 422 
-          L1385 420 
-          L1568 237 
-          L1750 55 
-          L1193 52 
-          L635 50 
-          L448 237 Z" 
+        d="M19 24 
+        L24 19
+        L24 3 
+        L19 8
+        L19 19 
+        L8 19 
+        L3 24 
+        L19 24"
         fill={blockFill}
       />
     </svg>
