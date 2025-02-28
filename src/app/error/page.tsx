@@ -7,7 +7,7 @@ import { MyBlocksLogo } from '@/components/MyBlocksLogo'
 export default function ErrorPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center text-center">
-      <MyBlocksLogo width={80} height={80} variant="filled" animated />
+      <MyBlocksLogo width={80} height={80} variant="filled" />
       
       <h1 className="mt-6 text-3xl font-bold">Something went wrong</h1>
       
