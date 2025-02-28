@@ -16,6 +16,18 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "MyBlocks - Store and Retrieve Your UI Components",
   description: "A SaaS platform for developers to store and retrieve their favorite UI components and styles",
+  icons: {
+    icon: [
+      {
+        url: '/favicon-light.ico',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/favicon-dark.ico',
+        media: '(prefers-color-scheme: dark)',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -25,14 +37,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon-light.ico" sizes="any" />
-        <link rel="icon" href="/icon.svg" type="image/svg+xml" />
-        <link rel="icon" href="/favicon-dark.ico" media="(prefers-color-scheme: dark)" />
-
-          {/* Web App Manifest */}
-          <link rel="manifest" href="/manifest.json" />
-        </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
