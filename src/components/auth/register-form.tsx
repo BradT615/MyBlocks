@@ -14,7 +14,6 @@ export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
   
   // Form validation states
-  const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [emailError, setEmailError] = useState<string | null>(null)
   const [password, setPassword] = useState("")
@@ -53,7 +52,20 @@ export function RegisterForm() {
     setSuccess(null)
 
     try {
-      const result = await signup(formData)
+      // Extract display name from email and add it to the form data
+      const emailValue = formData.get('email') as string
+      const displayName = emailValue.split('@')[0]
+        .replace(/[._-]/g, ' ') // Replace dots, underscores, and hyphens with spaces
+        .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
+        .trim()
+      
+      // Create a new FormData with the extracted display name
+      const processedFormData = new FormData()
+      processedFormData.append('fullName', displayName)
+      processedFormData.append('email', emailValue)
+      processedFormData.append('password', formData.get('password') as string)
+      
+      const result = await signup(processedFormData)
       
       if (result?.error) {
         setError(result.error)
@@ -71,22 +83,6 @@ export function RegisterForm() {
   return (
     <div className="w-full">
       <form action={handleSubmit} className="space-y-5">
-        {/* Full Name field */}
-        <div className="flex flex-col space-y-2">
-          <Label htmlFor="fullName" className="text-sm font-medium px-1">
-            Full Name
-          </Label>
-          <Input
-            id="fullName"
-            name="fullName"
-            placeholder="John Doe"
-            disabled={isLoading}
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            autoComplete="name"
-          />
-        </div>
-        
         {/* Email field */}
         <div className="flex flex-col space-y-2">
           <Label htmlFor="email" className="text-sm font-medium px-1">

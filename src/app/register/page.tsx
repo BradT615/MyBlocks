@@ -23,7 +23,7 @@ export default async function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
+    <div className="flex min-h-screen flex-col items-center justify-between">
       {/* Responsive Header */}
       <header className="absolute top-0 left-0 right-0 p-6">
         <div className="max-w-7xl">
@@ -44,7 +44,9 @@ export default async function RegisterPage() {
           </Link>
         </div>
       </header>
-      
+
+      <div className="h-12 w-full"></div>
+
       <div className="relative w-full max-w-md px-4 py-8 sm:py-12 sm:px-8">
         <div className="mb-8 flex flex-col items-center text-center">
           <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
@@ -68,7 +70,7 @@ export default async function RegisterPage() {
         </p>
       </div>
       
-      <footer className="absolute bottom-4 text-center text-xs text-muted-foreground">
+      <footer className="h-12 flex w-full items-center justify-center text-center text-muted-foreground">
         &copy; {new Date().getFullYear()} MyBlocks. All rights reserved.
       </footer>
     </div>
