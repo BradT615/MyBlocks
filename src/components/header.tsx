@@ -1,4 +1,3 @@
-// src/components/header.tsx
 "use client"
 
 import Link from "next/link"
@@ -14,8 +13,9 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur">
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="w-full px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-center relative">
+        {/* Logo */}
+        <div className="absolute left-4 sm:left-6 lg:left-8 flex items-center gap-2">
           <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
             <MyBlocksLogo width={32} height={32} variant="filled" />
             <span className="text-xl font-bold">MyBlocks</span>
@@ -42,28 +42,32 @@ export function Header() {
           >
             Pricing
           </Link>
+        </nav>
+        
+        {/* Right-side actions */}
+        <div className="absolute right-4 sm:right-6 lg:right-8 hidden md:flex items-center gap-4">
           <ThemeToggle />
           <Button 
+            variant="ghost"
             asChild
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+            className="rounded-md transition-all"
           >
             <Link href="/login">
               Sign In
             </Link>
           </Button>
           <Button 
-            variant="outline" 
             asChild
-            className="border-border bg-background hover:bg-accent/50 hover:text-accent-foreground/90 rounded-md shadow-sm hover:shadow-md transition-all"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
           >
             <Link href="/register">
               Sign Up
             </Link>
           </Button>
-        </nav>
+        </div>
         
         {/* Mobile navigation toggle */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="absolute right-4 sm:right-6 lg:right-8 flex items-center gap-2 md:hidden">
           <ThemeToggle />
           <Button 
             variant="ghost" 
