@@ -7,28 +7,28 @@ export interface InputProps
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, clearPlaceholderOnFocus = true, ...props }, ref) => {
-    const [placeholder, setPlaceholder] = React.useState(props.placeholder || "");
+  ({ className, type, clearPlaceholderOnFocus = true, onFocus, onBlur, placeholder, ...props }, ref) => {
+    const [storedPlaceholder, setStoredPlaceholder] = React.useState(placeholder || "");
     
     const handleFocus = React.useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
         if (clearPlaceholderOnFocus) {
-          setPlaceholder(e.target.placeholder);
+          setStoredPlaceholder(e.target.placeholder);
           e.target.placeholder = "";
         }
-        props.onFocus?.(e);
+        onFocus?.(e);
       },
-      [clearPlaceholderOnFocus, props.onFocus]
+      [clearPlaceholderOnFocus, onFocus]
     );
 
     const handleBlur = React.useCallback(
       (e: React.FocusEvent<HTMLInputElement>) => {
         if (clearPlaceholderOnFocus) {
-          e.target.placeholder = placeholder;
+          e.target.placeholder = storedPlaceholder;
         }
-        props.onBlur?.(e);
+        onBlur?.(e);
       },
-      [clearPlaceholderOnFocus, placeholder, props.onBlur]
+      [clearPlaceholderOnFocus, storedPlaceholder, onBlur]
     );
 
     return (
@@ -44,6 +44,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           className
         )}
         ref={ref}
+        placeholder={placeholder}
         {...props}
         onFocus={handleFocus}
         onBlur={handleBlur}

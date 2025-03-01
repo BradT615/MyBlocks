@@ -92,7 +92,7 @@ export function RegisterForm() {
           </div>
           <h3 className="mb-2 text-xl font-bold">Check your email</h3>
           <p className="mb-6 text-muted-foreground">
-            We've sent a verification link to <strong>{email}</strong>
+            We&apos;ve sent a verification link to <strong>{email}</strong>
           </p>
           <div className="mb-8 rounded-lg border border-border p-4 text-left">
             <div className="flex items-start gap-3">
@@ -112,7 +112,7 @@ export function RegisterForm() {
                   </li>
                   <li className="flex items-center gap-2">
                     <span className="h-1 w-1 rounded-full bg-muted-foreground"></span>
-                    <span>Check your spam folder if you don't see it</span>
+                    <span>Check your spam folder if you don&apos;t see it</span>
                   </li>
                 </ul>
               </div>
