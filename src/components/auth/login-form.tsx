@@ -42,6 +42,11 @@ export function LoginForm() {
       
       if (result?.error) {
         setError(result.error)
+      } else {
+        // Clear form on successful submission
+        const form = document.getElementById('login-form') as HTMLFormElement
+        if (form) form.reset()
+        setEmail("")
       }
     } catch (error) {
       setError('An unexpected error occurred')

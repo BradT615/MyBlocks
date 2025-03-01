@@ -42,6 +42,10 @@ export async function signup(formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
+  // Define a redirect URL for successful verification
+  // This is where users will be redirected after clicking the verification link
+  const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
@@ -49,6 +53,7 @@ export async function signup(formData: FormData) {
       data: {
         full_name: fullName,
       },
+      emailRedirectTo: redirectTo,
     },
   })
 

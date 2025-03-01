@@ -70,7 +70,7 @@ export default async function RegisterPage() {
         </p>
       </div>
       
-      <footer className="h-12 flex w-full items-center justify-center text-center text-muted-foreground">
+      <footer className="h-12 flex w-full items-center justify-center text-center text-sm text-muted-foreground">
         &copy; {new Date().getFullYear()} MyBlocks. All rights reserved.
       </footer>
     </div>
