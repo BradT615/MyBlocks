@@ -223,7 +223,7 @@ export function RegisterForm() {
             </div>
             <h3 className="text-xl font-bold mb-2">Verify your email</h3>
             <p className="text-sm text-muted-foreground">
-              We've sent a 6-digit code to <strong>{verifyEmail}</strong>
+              We&apos;ve sent a 6-digit code to <strong>{verifyEmail}</strong>
             </p>
             <p className="text-sm text-muted-foreground mt-1">
               Enter the code below to verify your email address

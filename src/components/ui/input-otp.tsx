@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
 
-interface OTPInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface OTPInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   length?: number
   value?: string
   onChange?: (value: string) => void
