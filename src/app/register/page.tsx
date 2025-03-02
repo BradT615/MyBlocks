@@ -25,7 +25,7 @@ export default async function RegisterPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-between">
       {/* Responsive Header */}
-      <header className="absolute top-0 left-0 right-0 p-6">
+      <header className="fixed top-0 left-0 right-0 p-6 z-20">
         <div className="max-w-7xl">
           <Link
             href="/"

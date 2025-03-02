@@ -77,7 +77,7 @@ export function LoginForm() {
 
   return (
     <div className="w-full">
-      <form action={handleSubmit} className="space-y-5">
+      <form action={handleSubmit} className="">
         {/* Email field */}
         <div className="flex flex-col space-y-2">
           <Label htmlFor="email" className="text-sm font-medium px-1">
@@ -102,9 +102,11 @@ export function LoginForm() {
               </div>
             )}
           </div>
-          {emailError && (
-            <p className="text-xs text-red-500 px-1">{emailError}</p>
-          )}
+          <div className="min-h-5">
+            {emailError && (
+              <p className="text-xs text-red-500 px-1">{emailError}</p>
+            )}
+          </div>
         </div>
         
         {/* Password field */}
@@ -163,7 +165,7 @@ export function LoginForm() {
         
         <Button 
           type="submit" 
-          className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
+          className="w-full h-12 mt-9 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
                    transition-all focus-visible:ring-2 focus-visible:ring-primary"
           disabled={isLoading || !!emailError}
         >
@@ -178,7 +180,7 @@ export function LoginForm() {
         </Button>
       </form>
       
-      <div className="mt-6">
+      <div className="mt-5">
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/50" />
@@ -190,7 +192,7 @@ export function LoginForm() {
           </div>
         </div>
 
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2">
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
           <Button
             variant="outline"
             type="button"

@@ -318,8 +318,8 @@ export function RegisterForm() {
 
   // Render registration form
   return (
-    <div className="w-full">
-      <form action={handleSubmit} className="space-y-5">
+<div className="w-full">
+      <form action={handleSubmit} className="">
         {/* Email field */}
         <div className="flex flex-col space-y-2">
           <Label htmlFor="email" className="text-sm font-medium px-1">
@@ -332,7 +332,7 @@ export function RegisterForm() {
               type="email"
               placeholder="name@example.com"
               required
-              className={emailError ? "border-red-500 pr-10" : ""}
+              className="pr-10"
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -344,9 +344,11 @@ export function RegisterForm() {
               </div>
             )}
           </div>
-          {emailError && (
-            <p className="text-xs text-red-500 px-1">{emailError}</p>
-          )}
+          <div className="min-h-5">
+            {emailError && (
+              <p className="text-xs text-red-500 px-1">{emailError}</p>
+            )}
+          </div>
         </div>
         
         {/* Password field */}
@@ -385,6 +387,11 @@ export function RegisterForm() {
               </div>
             )}
           </div>
+          <div className="min-h-4">
+            {passwordError && (
+              <p className="text-xs text-red-500 px-1">{passwordError}</p>
+            )}
+          </div>
         </div>
         
         {error && (
@@ -398,7 +405,7 @@ export function RegisterForm() {
         
         <Button 
           type="submit" 
-          className="w-full h-12 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
+          className="w-full h-12 mt-3 mb-5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
                   transition-all focus-visible:ring-2 focus-visible:ring-primary"
           disabled={isLoading || !!emailError || !!passwordError}
         >
@@ -412,7 +419,7 @@ export function RegisterForm() {
           )}
         </Button>
       
-        <div className="relative">
+        <div className="relative mb-5">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/50" />
           </div>
