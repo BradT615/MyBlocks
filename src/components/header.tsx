@@ -2,14 +2,35 @@
 
 import Link from "next/link"
 import { Menu } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { cn } from "@/lib/utils"
+import { createClient } from "@/utils/supabase/client"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+
+    checkUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => {
+      subscription.unsubscribe()
+    }
+  }, [])
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur">
@@ -47,23 +68,36 @@ export function Header() {
         {/* Right-side actions */}
         <div className="absolute right-4 sm:right-6 lg:right-8 hidden md:flex items-center gap-4">
           <ThemeToggle />
-          <Button 
-            variant="ghost"
-            asChild
-            className="rounded-md transition-all"
-          >
-            <Link href="/login">
-              Sign In
-            </Link>
-          </Button>
-          <Button 
-            asChild
-            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
-          >
-            <Link href="/register">
-              Sign Up
-            </Link>
-          </Button>
+          {user ? (
+            <Button 
+              asChild
+              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+            >
+              <Link href="/dashboard">
+                Dashboard
+              </Link>
+            </Button>
+          ) : (
+            <>
+              <Button 
+                variant="ghost"
+                asChild
+                className="rounded-md transition-all"
+              >
+                <Link href="/login">
+                  Sign In
+                </Link>
+              </Button>
+              <Button 
+                asChild
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+              >
+                <Link href="/register">
+                  Sign Up
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
         
         {/* Mobile navigation toggle */}
@@ -109,23 +143,36 @@ export function Header() {
               Pricing
             </Link>
             <div className="flex flex-col space-y-2 pt-2">
-              <Button 
-                asChild
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
-              >
-                <Link href="/login">
-                  Sign In
-                </Link>
-              </Button>
-              <Button 
-                variant="outline" 
-                asChild
-                className="border-border bg-background hover:bg-accent/50 hover:text-accent-foreground/90 rounded-md shadow-sm hover:shadow-md transition-all"
-              >
-                <Link href="/register">
-                  Sign Up
-                </Link>
-              </Button>
+              {user ? (
+                <Button 
+                  asChild
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                >
+                  <Link href="/dashboard">
+                    Dashboard
+                  </Link>
+                </Button>
+              ) : (
+                <>
+                  <Button 
+                    asChild
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                  >
+                    <Link href="/login">
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    asChild
+                    className="border-border bg-background hover:bg-accent/50 hover:text-accent-foreground/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                  >
+                    <Link href="/register">
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>
