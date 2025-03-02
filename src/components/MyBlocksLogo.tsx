@@ -31,12 +31,9 @@ export function MyBlocksLogo({
   }
   
   let blockFill = "transparent"
-  let strokeColor = "transparent"
   
   if (variant === "filled") {
-    blockFill = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.8)" : "rgba(0, 0, 0, 0.8)"
-  } else if (variant === "outline") {
-    strokeColor = resolvedTheme === "dark" ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)"
+    blockFill = resolvedTheme === "dark" ? "rgb(255, 255, 255, 1)" : "rgb(0, 0, 0)"
   }
 
   return (
@@ -47,19 +44,6 @@ export function MyBlocksLogo({
       height={height} 
       className={cn(className)}
     >
-      {/* Border */}
-      {(variant === "outline" || variant === "filled") && (
-        <rect 
-          x="260" 
-          y="52" 
-          width="1640" 
-          height="1680" 
-          fill="none" 
-          stroke={strokeColor}
-          strokeWidth="10"
-        />
-      )}
-      
       {/* Front Block */}
       <path 
         d="M5 0

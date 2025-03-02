@@ -318,8 +318,8 @@ export function RegisterForm() {
 
   // Render registration form
   return (
-<div className="w-full">
-      <form action={handleSubmit} className="">
+    <div className="w-full">
+      <form action={handleSubmit}>
         {/* Email field */}
         <div className="flex flex-col space-y-2">
           <Label htmlFor="email" className="text-sm font-medium px-1">
