@@ -133,8 +133,7 @@ export async function signInWithGithub() {
   }
   
   if (data.url) {
-    // Redirect is handled by the browser automatically
-    return { url: data.url }
+    redirect(data.url)
   }
   
   return { error: 'Failed to initialize GitHub login' }
