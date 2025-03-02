@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { signup, verifyOtp, resendVerificationCode } from '@/app/login/actions'
+import { signup, verifyOtp, resendVerificationCode, signInWithGithub } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -180,6 +180,25 @@ export function RegisterForm() {
   // Handle going back to signup form from verification
   const handleBackToForm = () => {
     setVerifyEmail(null)
+  }
+
+  async function handleGithubSignIn() {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const result = await signInWithGithub()
+      
+      if (result?.error) {
+        setError(result.error)
+      }
+      // The redirect will be handled by the server action
+    } catch (error) {
+      setError('Failed to initialize GitHub login')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // Render success state after OTP verification
@@ -414,6 +433,7 @@ export function RegisterForm() {
             disabled={isLoading}
             className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
                     flex items-center justify-center gap-2 font-medium transition-all"
+            onClick={handleGithubSignIn}
           >
             <Github className="h-4 w-4" />
             GitHub

@@ -116,3 +116,26 @@ export async function resendVerificationCode(email: string) {
 
   return { success: 'A new verification code has been sent to your email' }
 }
+
+export async function signInWithGithub() {
+  const supabase = await createClient()
+  
+  // Sign in with GitHub OAuth
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+    }
+  })
+  
+  if (error) {
+    return { error: error.message }
+  }
+  
+  if (data.url) {
+    // Redirect is handled by the browser automatically
+    return { url: data.url }
+  }
+  
+  return { error: 'Failed to initialize GitHub login' }
+}

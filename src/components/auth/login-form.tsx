@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { login } from '@/app/login/actions'
+import { login, signInWithGithub } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -50,6 +50,25 @@ export function LoginForm() {
       }
     } catch (error) {
       setError('An unexpected error occurred')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  async function handleGithubSignIn() {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const result = await signInWithGithub()
+      
+      if (result?.error) {
+        setError(result.error)
+      }
+      // The redirect will be handled by the server action
+    } catch (error) {
+      setError('Failed to initialize GitHub login')
       console.error(error)
     } finally {
       setIsLoading(false)
@@ -178,6 +197,7 @@ export function LoginForm() {
             disabled={isLoading}
             className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
                      flex items-center justify-center gap-2 font-medium transition-all"
+            onClick={handleGithubSignIn}
           >
             <Github className="h-4 w-4" />
             GitHub

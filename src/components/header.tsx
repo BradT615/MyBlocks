@@ -8,10 +8,11 @@ import { ThemeToggle } from "@/components/theme-toggle"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/utils/supabase/client"
+import { User } from "@supabase/supabase-js"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     const supabase = createClient()
