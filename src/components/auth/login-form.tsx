@@ -121,16 +121,16 @@ export function LoginForm() {
             </Link>
           </div>
           <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
-              required
-              className="pr-10"
-              disabled={isLoading}
-              autoComplete="current-password"
-            />
+          <Input
+            id="password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            required
+            className="pr-10"
+            disabled={isLoading}
+            autoComplete="current-password"
+            placeholder="Enter password"
+          />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}

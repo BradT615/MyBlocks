@@ -359,13 +359,13 @@ export function RegisterForm() {
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
               required
-              className={passwordError ? "border-red-500 pr-10" : "pr-10"}
+              className="pr-10"
               disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
+              placeholder="Must have at least 8 characters"
             />
             <button
               type="button"
@@ -379,15 +379,12 @@ export function RegisterForm() {
                 <Eye className="h-4 w-4" />
               )}
             </button>
+            {passwordError && (
+              <div className="absolute right-10 top-1/2 -translate-y-1/2 text-red-500">
+                <AlertCircle className="h-4 w-4" />
+              </div>
+            )}
           </div>
-          {passwordError && (
-            <p className="text-xs text-red-500 px-1">{passwordError}</p>
-          )}
-          {!passwordError && password.length === 0 && (
-            <p className="text-xs text-muted-foreground px-1">
-              Password must be at least 8 characters long
-            </p>
-          )}
         </div>
         
         {error && (
