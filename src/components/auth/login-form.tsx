@@ -47,6 +47,7 @@ export function LoginForm() {
         const form = document.getElementById('login-form') as HTMLFormElement
         if (form) form.reset()
         setEmail("")
+        setSuccess("Successfully signed in!")
       }
     } catch (error) {
       setError('An unexpected error occurred')
@@ -77,12 +78,17 @@ export function LoginForm() {
 
   return (
     <div className="w-full">
-      <form action={handleSubmit}>
+      <form action={handleSubmit} className="space-y-4">
         {/* Email field */}
         <div className="flex flex-col space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium px-1">
-            Email
-          </Label>
+          <div className="flex justify-between items-center px-1">
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
+            {emailError && (
+              <p className="text-xs text-red-500">{emailError}</p>
+            )}
+          </div>
           <div className="relative">
             <Input
               id="email"
@@ -102,15 +108,10 @@ export function LoginForm() {
               </div>
             )}
           </div>
-          <div className="min-h-5">
-            {emailError && (
-              <p className="text-xs text-red-500 px-1">{emailError}</p>
-            )}
-          </div>
         </div>
         
         {/* Password field */}
-        <div className="flex flex-col space-y-2 pb-6">
+        <div className="flex flex-col space-y-2">
           <div className="flex items-center justify-between px-1">
             <Label htmlFor="password" className="text-sm font-medium">
               Password
@@ -149,7 +150,7 @@ export function LoginForm() {
         </div>
         
         {error && (
-          <div className="rounded-lg bg-red-500/5 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/10">
+          <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{error}</span>
@@ -158,14 +159,14 @@ export function LoginForm() {
         )}
         
         {success && (
-          <div className="rounded-lg bg-green-500/5 border-green-500/20 p-3 text-sm text-green-500 dark:bg-green-900/10">
-            {success}
+          <div className="rounded-lg mb-2 h-10 bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-500 dark:bg-green-900/20">
+            <span>{success}</span>
           </div>
         )}
         
         <Button 
           type="submit" 
-          className="w-full h-12 mt-3 mb-5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
+          className="w-full h-12 mt-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
                    transition-all focus-visible:ring-2 focus-visible:ring-primary"
           disabled={isLoading || !!emailError}
         >
@@ -179,7 +180,7 @@ export function LoginForm() {
           )}
         </Button>
       
-        <div className="relative mb-5">
+        <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/50" />
           </div>

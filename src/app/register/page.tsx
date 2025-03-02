@@ -47,7 +47,7 @@ export default async function RegisterPage() {
 
       <div className="h-12 w-full"></div>
 
-      <div className="relative w-full max-w-md px-4 py-8 sm:py-12 sm:px-8">
+      <div className="relative w-full max-w-md px-4 pb-8 sm:py-12 sm:px-8">
         <div className="mb-8 flex flex-col items-center text-center">
           <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight">

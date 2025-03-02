@@ -57,7 +57,7 @@ export function RegisterForm() {
   useEffect(() => {
     if (password) {
       if (!isStrongPassword(password)) {
-        setPasswordError('Password must be at least 8 characters long')
+        setPasswordError('Must have at least 8 characters')
       } else {
         setPasswordError(null)
       }
@@ -319,12 +319,17 @@ export function RegisterForm() {
   // Render registration form
   return (
     <div className="w-full">
-      <form action={handleSubmit}>
+      <form action={handleSubmit} className="space-y-4">
         {/* Email field */}
         <div className="flex flex-col space-y-2">
-          <Label htmlFor="email" className="text-sm font-medium px-1">
-            Email
-          </Label>
+          <div className="flex justify-between items-center px-1">
+            <Label htmlFor="email" className="text-sm font-medium">
+              Email
+            </Label>
+            {emailError && (
+              <p className="text-xs text-red-500">{emailError}</p>
+            )}
+          </div>
           <div className="relative">
             <Input
               id="email"
@@ -332,7 +337,7 @@ export function RegisterForm() {
               type="email"
               placeholder="name@example.com"
               required
-              className="pr-10"
+              className={emailError ? "border-red-500 pr-10" : "pr-10"}
               disabled={isLoading}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -344,25 +349,25 @@ export function RegisterForm() {
               </div>
             )}
           </div>
-          <div className="min-h-5">
-            {emailError && (
-              <p className="text-xs text-red-500 px-1">{emailError}</p>
-            )}
-          </div>
         </div>
         
         {/* Password field */}
         <div className="flex flex-col space-y-2">
-          <Label htmlFor="password" className="text-sm font-medium px-1">
-            Password
-          </Label>
+          <div className="flex justify-between items-center px-1">
+            <Label htmlFor="password" className="text-sm font-medium">
+              Password
+            </Label>
+            {passwordError && (
+              <p className="text-xs text-red-500">{passwordError}</p>
+            )}
+          </div>
           <div className="relative">
             <Input
               id="password"
               name="password"
               type={showPassword ? "text" : "password"}
               required
-              className="pr-10"
+              className={passwordError ? "border-red-500 pr-10" : "pr-10"}
               disabled={isLoading}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -387,15 +392,10 @@ export function RegisterForm() {
               </div>
             )}
           </div>
-          <div className="min-h-4">
-            {passwordError && (
-              <p className="text-xs text-red-500 px-1">{passwordError}</p>
-            )}
-          </div>
         </div>
         
         {error && (
-          <div className="rounded-lg bg-red-500/5 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/10">
+          <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{error}</span>
@@ -405,7 +405,7 @@ export function RegisterForm() {
         
         <Button 
           type="submit" 
-          className="w-full h-12 mt-3 mb-5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
+          className="w-full h-12 mt-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
                   transition-all focus-visible:ring-2 focus-visible:ring-primary"
           disabled={isLoading || !!emailError || !!passwordError}
         >
@@ -419,7 +419,7 @@ export function RegisterForm() {
           )}
         </Button>
       
-        <div className="relative mb-5">
+        <div className="relative py-2">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border/50" />
           </div>
