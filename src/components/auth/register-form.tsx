@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { signup, verifyOtp, resendVerificationCode, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,7 +16,6 @@ import {
   RefreshCw, 
   Mail 
 } from "lucide-react"
-import { useRouter } from 'next/navigation'
 
 export function RegisterForm() {
   const router = useRouter()

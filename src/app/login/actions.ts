@@ -9,30 +9,30 @@ export async function login(formData: FormData) {
   
   // Get form data
   const email = formData.get('email') as string
-  const password = formData.get('password') as string
   
-  // Validate inputs
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+  // Validate input
+  if (!email) {
+    return { error: 'Email is required' }
   }
 
-  const { error } = await supabase.auth.signInWithPassword({
+  // Sign in with OTP using Supabase
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
+    options: {
+      shouldCreateUser: false, // Prevent automatically creating new users
+    }
   })
 
   if (error) {
     return { error: error.message }
   }
 
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+  return { success: 'Check your email for the verification code', email }
 }
 
 export async function signup(formData: FormData) {
   const supabase = await createClient()
   
-  // Get form data - no longer need password
   const email = formData.get('email') as string
   
   // Validate input

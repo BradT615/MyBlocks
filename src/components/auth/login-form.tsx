@@ -1,18 +1,33 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { login, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/login/actions'
+import { useRouter } from 'next/navigation'
+import { login, verifyOtp, resendVerificationCode, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Github, Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react"
+import { OTPInput } from "@/components/ui/input-otp"
+import { 
+  Github, 
+  AlertCircle, 
+  Loader2, 
+  CheckCircle2,
+  ArrowLeft, 
+  RefreshCw, 
+  Mail 
+} from "lucide-react"
 
 export function LoginForm() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
+  const [otpValue, setOtpValue] = useState("")
+  const [otpSuccess, setOtpSuccess] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [countdown, setCountdown] = useState(60)
+  const [canResend, setCanResend] = useState(false)
   
   // Form validation states
   const [email, setEmail] = useState("")
@@ -32,22 +47,34 @@ export function LoginForm() {
     }
   }, [email])
 
+  // Countdown timer for resend button
+  useEffect(() => {
+    if (!verifyEmail) return
+    
+    if (countdown <= 0) {
+      setCanResend(true)
+      return
+    }
+    
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1)
+    }, 1000)
+    
+    return () => clearTimeout(timer)
+  }, [countdown, verifyEmail])
+
   async function handleSubmit(formData: FormData) {
     setIsLoading(true)
     setError(null)
-    setSuccess(null)
 
     try {
       const result = await login(formData)
       
       if (result?.error) {
         setError(result.error)
-      } else {
-        // Clear form on successful submission
-        const form = document.getElementById('login-form') as HTMLFormElement
-        if (form) form.reset()
-        setEmail("")
-        setSuccess("Successfully signed in!")
+      } else if (result?.success && result?.email) {
+        // Set the email to transition to verification screen
+        setVerifyEmail(result.email)
       }
     } catch (error) {
       setError('An unexpected error occurred')
@@ -56,7 +83,72 @@ export function LoginForm() {
       setIsLoading(false)
     }
   }
-  
+
+  // Handle OTP verification
+  async function handleVerifyOtp() {
+    if (otpValue.length !== 6 || !verifyEmail) return
+    
+    setIsVerifying(true)
+    setError(null)
+    
+    try {
+      // Create form data for the server action
+      const formData = new FormData()
+      formData.append('email', verifyEmail)
+      formData.append('token', otpValue)
+      
+      const result = await verifyOtp(formData)
+      
+      if (result?.error) {
+        setError(result.error)
+      } else if (result?.success) {
+        setOtpSuccess(true)
+        
+        // Redirect to dashboard after a brief delay
+        setTimeout(() => {
+          router.push('/dashboard')
+        }, 1500)
+      }
+    } catch (error) {
+      setError('Failed to verify code')
+      console.error(error)
+    } finally {
+      setIsVerifying(false)
+    }
+  }
+
+  // Handle resend verification code
+  async function handleResendCode() {
+    if (!canResend || !verifyEmail) return
+    
+    setIsResending(true)
+    setError(null)
+    
+    try {
+      const result = await resendVerificationCode(verifyEmail)
+      
+      if (result?.error) {
+        setError(result.error)
+      } else {
+        // Reset countdown
+        setCountdown(60)
+        setCanResend(false)
+        // Clear OTP input
+        setOtpValue("")
+      }
+    } catch (error) {
+      setError('Failed to resend verification code')
+      console.error(error)
+    } finally {
+      setIsResending(false)
+    }
+  }
+
+  // Handle going back to login form from verification
+  const handleBackToForm = () => {
+    setVerifyEmail(null)
+  }
+
   async function handleGithubSignIn() {
     setIsLoading(true)
     setError(null)
@@ -114,6 +206,122 @@ export function LoginForm() {
     }
   }
 
+  // Render success state after OTP verification
+  if (otpSuccess) {
+    return (
+      <div className="text-center flex flex-col items-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20 mb-6">
+          <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
+        </div>
+        <h2 className="text-2xl font-bold mb-2">Login Successful</h2>
+        <p className="text-muted-foreground mb-6">
+          You have successfully logged in! Redirecting you to your dashboard...
+        </p>
+        <div className="animate-pulse">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </div>
+    )
+  }
+
+  // Render OTP verification form
+  if (verifyEmail) {
+    return (
+      <div className="w-full">
+        <div className="space-y-6">
+          {/* Back button */}
+          <button 
+            type="button" 
+            onClick={handleBackToForm}
+            className="flex items-center text-sm text-muted-foreground hover:text-foreground mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            <span>Back to login</span>
+          </button>
+
+          <div className="text-center mb-6">
+            <div className="mb-4 flex justify-center">
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Mail className="h-6 w-6 text-primary" />
+              </div>
+            </div>
+            <h3 className="text-xl font-bold mb-2">Check your email</h3>
+            <p className="text-sm text-muted-foreground">
+              We&apos;ve sent a 6-digit code to <strong>{verifyEmail}</strong>
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Enter the code below to sign in
+            </p>
+          </div>
+          
+          {/* OTP Input */}
+          <div className="flex justify-center">
+            <OTPInput
+              value={otpValue}
+              onChange={setOtpValue}
+              disabled={isVerifying}
+              length={6}
+            />
+          </div>
+          
+          {/* Error message */}
+          {error && (
+            <div className="rounded-lg bg-red-500/5 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/10">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Verify button */}
+          <Button 
+            onClick={handleVerifyOtp}
+            className="w-full h-12"
+            disabled={isVerifying || otpValue.length !== 6}
+          >
+            {isVerifying ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Verifying...
+              </span>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
+          
+          {/* Resend code option */}
+          <div className="text-center pt-2">
+            <button 
+              type="button"
+              onClick={handleResendCode}
+              disabled={!canResend || isResending}
+              className={`text-sm flex items-center justify-center mx-auto gap-1
+                ${canResend 
+                  ? 'text-primary hover:underline cursor-pointer' 
+                  : 'text-muted-foreground cursor-not-allowed'}`}
+            >
+              {isResending ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Sending new code...</span>
+                </>
+              ) : canResend ? (
+                <>
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Resend verification code</span>
+                </>
+              ) : (
+                <span>Resend code in {countdown}s</span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Render login form
   return (
     <div className="w-full">
       <form action={handleSubmit} className="space-y-4">
@@ -148,57 +356,12 @@ export function LoginForm() {
           </div>
         </div>
         
-        {/* Password field */}
-        <div className="flex flex-col space-y-2">
-          <div className="flex items-center justify-between px-1">
-            <Label htmlFor="password" className="text-sm font-medium">
-              Password
-            </Label>
-            <Link 
-              href="/reset-password" 
-              className="text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              Forgot password?
-            </Link>
-          </div>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              required
-              className="pr-10"
-              disabled={isLoading}
-              autoComplete="current-password"
-              placeholder="Enter password"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-          </div>
-        </div>
-        
         {error && (
           <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
-          </div>
-        )}
-        
-        {success && (
-          <div className="rounded-lg mb-2 h-10 bg-green-500/10 border border-green-500/20 p-3 text-sm text-green-500 dark:bg-green-900/20">
-            <span>{success}</span>
           </div>
         )}
         
@@ -211,10 +374,10 @@ export function LoginForm() {
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Signing in...
+              Sending verification code...
             </span>
           ) : (
-            "Sign in"
+            "Continue with Email"
           )}
         </Button>
       
