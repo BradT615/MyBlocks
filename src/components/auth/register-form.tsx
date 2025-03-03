@@ -6,11 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { OTPInput } from "@/components/ui/input-otp"
-import { isStrongPassword } from "@/utils/validation"
 import { 
   Github, 
-  Eye, 
-  EyeOff, 
   AlertCircle, 
   Loader2, 
   CheckCircle2, 
@@ -25,7 +22,6 @@ export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
-  const [showPassword, setShowPassword] = useState(false)
   const [otpValue, setOtpValue] = useState("")
   const [otpSuccess, setOtpSuccess] = useState(false)
   const [isVerifying, setIsVerifying] = useState(false)
@@ -36,8 +32,6 @@ export function RegisterForm() {
   // Form validation states
   const [email, setEmail] = useState("")
   const [emailError, setEmailError] = useState<string | null>(null)
-  const [password, setPassword] = useState("")
-  const [passwordError, setPasswordError] = useState<string | null>(null)
   
   // Validate email on change
   useEffect(() => {
@@ -52,19 +46,6 @@ export function RegisterForm() {
       setEmailError(null)
     }
   }, [email])
-  
-  // Validate password on change
-  useEffect(() => {
-    if (password) {
-      if (!isStrongPassword(password)) {
-        setPasswordError('Must have at least 8 characters')
-      } else {
-        setPasswordError(null)
-      }
-    } else {
-      setPasswordError(null)
-    }
-  }, [password])
 
   // Countdown timer for resend button
   useEffect(() => {
@@ -88,26 +69,13 @@ export function RegisterForm() {
     setError(null)
 
     try {
-      // Extract display name from email and add it to the form data
-      const emailValue = formData.get('email') as string
-      const displayName = emailValue.split('@')[0]
-        .replace(/[._-]/g, ' ') // Replace dots, underscores, and hyphens with spaces
-        .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
-        .trim()
-      
-      // Create a new FormData with the extracted display name
-      const processedFormData = new FormData()
-      processedFormData.append('fullName', displayName)
-      processedFormData.append('email', emailValue)
-      processedFormData.append('password', formData.get('password') as string)
-      
-      const result = await signup(processedFormData)
+      const result = await signup(formData)
       
       if (result?.error) {
         setError(result.error)
       } else if (result?.success && result?.email) {
         // Set the email to transition to verification screen
-        setVerifyEmail(emailValue)
+        setVerifyEmail(result.email)
       }
     } catch (error) {
       setError('An unexpected error occurred')
@@ -389,49 +357,6 @@ export function RegisterForm() {
           </div>
         </div>
         
-        {/* Password field */}
-        <div className="flex flex-col space-y-2">
-          <div className="flex justify-between items-center px-1">
-            <Label htmlFor="password" className="text-sm font-medium">
-              Password
-            </Label>
-            {passwordError && (
-              <p className="text-xs text-red-500">{passwordError}</p>
-            )}
-          </div>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              required
-              className={passwordError ? "border-red-500 pr-10" : "pr-10"}
-              disabled={isLoading}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              autoComplete="new-password"
-              placeholder="Must have at least 8 characters"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              tabIndex={-1}
-            >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
-            {passwordError && (
-              <div className="absolute right-10 top-1/2 -translate-y-1/2 text-red-500">
-                <AlertCircle className="h-4 w-4" />
-              </div>
-            )}
-          </div>
-        </div>
-        
         {error && (
           <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
             <div className="flex items-center gap-2">
@@ -445,15 +370,15 @@ export function RegisterForm() {
           type="submit" 
           className="w-full h-12 mt-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
                   transition-all focus-visible:ring-2 focus-visible:ring-primary"
-          disabled={isLoading || !!emailError || !!passwordError}
+          disabled={isLoading || !!emailError}
         >
           {isLoading ? (
             <span className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin" />
-              Creating account...
+              Sending verification code...
             </span>
           ) : (
-            "Create Account"
+            "Continue with Email"
           )}
         </Button>
       

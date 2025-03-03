@@ -32,30 +32,27 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient()
   
-  // Get form data
+  // Get form data - no longer need password
   const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const fullName = formData.get('fullName') as string
   
-  // Validate inputs
-  if (!email || !password) {
-    return { error: 'Email and password are required' }
+  // Validate input
+  if (!email) {
+    return { error: 'Email is required' }
   }
 
-  // Simple password strength validation
-  if (password.length < 8) {
-    return { error: 'Password must be at least 8 characters long' }
-  }
-
+  // Extract display name from email
+  const displayName = email.split('@')[0]
+    .replace(/[._-]/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim()
+  
   // Sign up with OTP using Supabase
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signInWithOtp({
     email,
-    password,
     options: {
       data: {
-        full_name: fullName || email.split('@')[0],
+        full_name: displayName,
       },
-      // No emailRedirectTo - we'll handle verification with OTP
     },
   })
 
@@ -82,17 +79,15 @@ export async function verifyOtp(formData: FormData) {
   const { error } = await supabase.auth.verifyOtp({
     email,
     token,
-    type: 'signup'
+    type: 'email'
   })
 
   if (error) {
     return { error: error.message }
   }
 
-  // After successful verification, automatically log the user in
   revalidatePath('/', 'layout')
   
-  // Return success - we'll handle redirect client-side
   return { success: true }
 }
 
@@ -104,9 +99,8 @@ export async function resendVerificationCode(email: string) {
     return { error: 'Email is required' }
   }
 
-  // Request OTP resend
-  const { error } = await supabase.auth.resend({
-    type: 'signup',
+  // Request OTP resend by initiating a new OTP sign-in
+  const { error } = await supabase.auth.signInWithOtp({
     email
   })
 
