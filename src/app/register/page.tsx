@@ -2,9 +2,9 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
-import { RegisterForm } from "@/components/auth/register-form"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { ArrowLeft } from "lucide-react"
+import { RegisterClientPage } from "@/components/auth/register-client-page"
 
 export const metadata: Metadata = {
   title: "Create an Account | MyBlocks",
@@ -46,28 +46,9 @@ export default async function RegisterPage() {
       </header>
 
       <div className="h-12 w-full"></div>
-
+      
       <div className="relative w-full max-w-md px-4 pb-8 sm:py-12 sm:px-8">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">
-            Create an account
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Sign up to get started with MyBlocks
-          </p>
-        </div>
-        
-        <RegisterForm />
-        
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          <Link
-            href="/login"
-            className="hover:text-primary underline underline-offset-4 transition-colors"
-          >
-            Already have an account? Sign In
-          </Link>
-        </p>
+        <RegisterClientPage />
       </div>
       
       <footer className="h-12 flex w-full items-center justify-center text-center text-sm text-muted-foreground">

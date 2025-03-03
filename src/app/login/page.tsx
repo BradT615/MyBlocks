@@ -2,9 +2,9 @@ import { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
-import { LoginForm } from "@/components/auth/login-form"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { ArrowLeft } from "lucide-react"
+import { LoginClientPage } from "@/components/auth/login-client-page"
 
 export const metadata: Metadata = {
   title: "Login | MyBlocks",
@@ -48,26 +48,7 @@ export default async function LoginPage() {
       <div className="h-12 w-full"></div>
       
       <div className="relative w-full max-w-md px-4 pb-8 sm:py-12 sm:px-8">
-        <div className="mb-8 flex flex-col items-center text-center">
-          <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back
-          </h1>
-          <p className="mt-2 text-muted-foreground">
-            Sign in to your account to continue
-          </p>
-        </div>
-        
-        <LoginForm />
-        
-        <p className="mt-6 text-center text-sm text-muted-foreground">
-          <Link
-            href="/register"
-            className="hover:text-primary underline underline-offset-4 transition-colors"
-          >
-            Don&apos;t have an account? Sign Up
-          </Link>
-        </p>
+        <LoginClientPage />
       </div>
       
       <footer className="h-12 flex items-center justify-center text-center text-sm text-muted-foreground">
