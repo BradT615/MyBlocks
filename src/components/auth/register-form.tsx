@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { signup, verifyOtp, resendVerificationCode, signInWithGithub } from '@/app/login/actions'
+import { signup, verifyOtp, resendVerificationCode, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -195,6 +195,44 @@ export function RegisterForm() {
       // The redirect will be handled by the server action
     } catch (error) {
       setError('Failed to initialize GitHub login')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleGoogleSignIn() {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const result = await signInWithGoogle()
+      
+      if (result?.error) {
+        setError(result.error)
+      }
+      // The redirect will be handled by the server action
+    } catch (error) {
+      setError('Failed to initialize Google login')
+      console.error(error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  async function handleFigmaSignIn() {
+    setIsLoading(true)
+    setError(null)
+    
+    try {
+      const result = await signInWithFigma()
+      
+      if (result?.error) {
+        setError(result.error)
+      }
+      // The redirect will be handled by the server action
+    } catch (error) {
+      setError('Failed to initialize Figma login')
       console.error(error)
     } finally {
       setIsLoading(false)
@@ -449,6 +487,7 @@ export function RegisterForm() {
             disabled={isLoading}
             className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
                     flex items-center justify-center gap-2 font-medium transition-all"
+            onClick={handleGoogleSignIn}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" style={{ color: "#4285F4" }}>
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -465,6 +504,7 @@ export function RegisterForm() {
             disabled={isLoading}
             className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
                     flex items-center justify-center gap-2 font-medium transition-all"
+            onClick={handleFigmaSignIn}
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" style={{ color: "#0ACF83" }}>
               <path fill="currentColor" d="M8 24c2.2 0 4-1.8 4-4v-4H8c-2.2 0-4 1.8-4 4s1.8 4 4 4z" />

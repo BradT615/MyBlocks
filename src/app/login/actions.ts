@@ -138,3 +138,51 @@ export async function signInWithGithub() {
   
   return { error: 'Failed to initialize GitHub login' }
 }
+
+export async function signInWithGoogle() {
+  const supabase = await createClient()
+  
+  // Sign in with Google OAuth
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      }
+    }
+  })
+  
+  if (error) {
+    return { error: error.message }
+  }
+  
+  if (data.url) {
+    redirect(data.url)
+  }
+  
+  return { error: 'Failed to initialize Google login' }
+}
+
+export async function signInWithFigma() {
+  const supabase = await createClient()
+  
+  // Sign in with Figma OAuth
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'figma',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+    }
+  })
+  
+  if (error) {
+    return { error: error.message }
+  }
+  
+  if (data.url) {
+    redirect(data.url)
+  }
+  
+  return { error: 'Failed to initialize Figma login' }
+}
