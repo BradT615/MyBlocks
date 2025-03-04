@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { verifyOtp, resendVerificationCode } from '@/app/login/actions'
+import { verifyOtp, resendVerificationCode } from '@/app/(authentication)/login/actions'
 import { Button } from "@/components/ui/button"
 import { OTPInput } from "@/components/ui/input-otp"
 import { 

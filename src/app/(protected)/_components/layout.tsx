@@ -1,6 +1,6 @@
 import React from 'react'
-import { DashboardNav } from '@/components/dashboard/nav'
-import { UserAccountNav } from '@/components/dashboard/user-account-nav'
+import { DashboardNav } from '@/app/(protected)/_components/nav'
+import { UserAccountNav } from '@/app/(protected)/_components/user-account-nav'
 import { MyBlocksLogo } from '@/components/MyBlocksLogo'
 import Link from 'next/link'
 

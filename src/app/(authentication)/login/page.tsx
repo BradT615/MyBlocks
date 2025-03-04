@@ -4,7 +4,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { ArrowLeft } from "lucide-react"
-import { LoginClientPage } from "@/components/auth/login-client-page"
+import { LoginClientPage } from "@/app/(authentication)/_components/login-client-page"
 
 export const metadata: Metadata = {
   title: "Login | MyBlocks",

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { signup, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/login/actions'
+import { login, signInWithGithub, signInWithGoogle, signInWithFigma } from '@/app/(authentication)/login/actions'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -9,14 +9,14 @@ import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { 
   Github, 
   AlertCircle, 
-  Loader2 
+  Loader2
 } from "lucide-react"
 
-interface RegisterFormProps {
+interface LoginFormProps {
   onEmailSubmit: (email: string) => void;
 }
 
-export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
+export function LoginForm({ onEmailSubmit }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -43,7 +43,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
     setError(null)
 
     try {
-      const result = await signup(formData)
+      const result = await login(formData)
       
       if (result?.error) {
         setError(result.error)
@@ -122,10 +122,10 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
       <div className="mb-8 flex flex-col items-center text-center">
         <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
         <h1 className="text-3xl font-bold tracking-tight">
-          Create an account
+          Welcome back
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Sign up to get started with MyBlocks
+          Sign in to your account to continue
         </p>
       </div>
 

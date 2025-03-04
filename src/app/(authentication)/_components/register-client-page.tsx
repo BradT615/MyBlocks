@@ -2,40 +2,40 @@
 
 import { useState } from 'react'
 import Link from "next/link"
-import { LoginForm } from '@/components/auth/login-form'
-import { OTPVerificationForm } from '@/components/auth/login-otp-form'
+import { RegisterForm } from '@/app/(authentication)/_components/register-form'
+import { RegisterOTPVerificationForm } from '@/app/(authentication)/_components/register-otp-form'
 
-export function LoginClientPage() {
+export function RegisterClientPage() {
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
 
   const handleEmailSubmit = (email: string) => {
     setVerifyEmail(email)
   }
 
-  const handleBackToLogin = () => {
+  const handleBackToRegister = () => {
     setVerifyEmail(null)
   }
 
-  // Show either login form or OTP verification based on state
+  // Show either registration form or OTP verification based on state
   return (
     <>
       {verifyEmail ? (
-        <OTPVerificationForm 
+        <RegisterOTPVerificationForm 
           email={verifyEmail}
-          onBack={handleBackToLogin}
+          onBack={handleBackToRegister}
         />
       ) : (
         <>
-          <LoginForm 
+          <RegisterForm 
             onEmailSubmit={handleEmailSubmit}
           />
           
           <p className="mt-6 text-center text-sm text-muted-foreground">
             <Link
-              href="/register"
+              href="/login"
               className="hover:text-primary underline underline-offset-4 transition-colors"
             >
-              Don&apos;t have an account? Sign Up
+              Already have an account? Sign In
             </Link>
           </p>
         </>
