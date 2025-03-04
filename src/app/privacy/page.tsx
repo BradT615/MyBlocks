@@ -94,6 +94,20 @@ export default function PrivacyPolicyPage() {
                 information about you from the provider. This information may include your name, email address, 
                 and profile picture.
               </p>
+              
+              <h3 className="text-lg font-medium mt-4 mb-3">Google Authentication Scopes</h3>
+              <p className="mb-3 text-muted-foreground">
+                When you sign in with Google, MyBlocks requests the following specific permissions:
+              </p>
+              <ul className="list-disc pl-6 text-muted-foreground space-y-2 mb-4">
+                <li><span className="font-medium">Email Address</span> (<code className="text-xs bg-muted px-1 py-0.5 rounded">/auth/userinfo.email</code>): 
+                  We request access to see your primary Google Account email address to create and identify your MyBlocks account.</li>
+                <li><span className="font-medium">Basic Profile Information</span> (<code className="text-xs bg-muted px-1 py-0.5 rounded">/auth/userinfo.profile</code>): 
+                  We request access to basic profile information you&apos;ve made available, such as your name and profile picture, to personalize your MyBlocks experience.</li>
+                <li><span className="font-medium">OpenID Connect</span> (<code className="text-xs bg-muted px-1 py-0.5 rounded">openid</code>): 
+                  This allows us to securely authenticate you with Google and associate you with your personal information on Google.</li>
+              </ul>
+              
               <p className="text-muted-foreground">
                 We use this information solely for the purpose of creating and managing your MyBlocks account. 
                 We do not share your login information with other users or with any other third parties except 

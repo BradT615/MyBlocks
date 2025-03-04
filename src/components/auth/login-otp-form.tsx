@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { verifyOtp, resendVerificationCode } from '@/app/login/actions'
 import { Button } from "@/components/ui/button"
 import { OTPInput } from "@/components/ui/input-otp"
-import { MyBlocksLogo } from "@/components/MyBlocksLogo"
 import { 
   AlertCircle, 
   Loader2, 
@@ -14,6 +13,7 @@ import {
   RefreshCw, 
   Mail 
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface OTPVerificationFormProps {
   email: string;
@@ -61,6 +61,7 @@ export function OTPVerificationForm({ email, onBack }: OTPVerificationFormProps)
       
       if (result?.error) {
         setError(result.error)
+        setIsVerifying(false)
       } else if (result?.success) {
         setOtpSuccess(true)
         
@@ -68,11 +69,11 @@ export function OTPVerificationForm({ email, onBack }: OTPVerificationFormProps)
         setTimeout(() => {
           router.push('/dashboard')
         }, 1500)
+        // Don't set isVerifying to false here so the success state remains
       }
     } catch (error) {
       setError('Failed to verify code')
       console.error(error)
-    } finally {
       setIsVerifying(false)
     }
   }
@@ -104,32 +105,7 @@ export function OTPVerificationForm({ email, onBack }: OTPVerificationFormProps)
     }
   }
 
-  // Render success state after OTP verification
-  if (otpSuccess) {
-    return (
-      <>
-        {/* Success header */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight">
-            Login Successful
-          </h1>
-        </div>
-        
-        <div className="text-center flex flex-col items-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/20 mb-6">
-            <CheckCircle2 className="h-10 w-10 text-green-600 dark:text-green-400" />
-          </div>
-          <p className="text-muted-foreground mb-6">
-            You have successfully logged in! Redirecting you to your dashboard...
-          </p>
-          <div className="animate-pulse">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
-        </div>
-      </>
-    )
-  }
+  // We're not using a separate success UI anymore - integrated into the button
 
   return (
     <>
@@ -178,14 +154,22 @@ export function OTPVerificationForm({ email, onBack }: OTPVerificationFormProps)
             </div>
           )}
           
-          {/* Verify button */}
+          {/* Verify button with integrated success state */}
           <Button 
             onClick={handleVerifyOtp}
-            className="w-full h-12"
+            className={cn(
+              "w-full h-12 transition-all",
+              otpSuccess && "bg-green-600 hover:bg-green-700"
+            )}
             disabled={isVerifying || otpValue.length !== 6}
           >
-            {isVerifying ? (
-              <span className="flex items-center gap-2">
+            {otpSuccess ? (
+              <span className="flex items-center gap-2 justify-center">
+                <CheckCircle2 className="h-4 w-4" />
+                Success! Redirecting...
+              </span>
+            ) : isVerifying ? (
+              <span className="flex items-center gap-2 justify-center">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Verifying...
               </span>
