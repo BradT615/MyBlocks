@@ -36,6 +36,45 @@ The platform is designed to solve collaboration challenges between design and de
 - **Vercel**: Hosting and deployment platform
 - **Stripe**: Payment processing and subscription management
 
+## Database Schema
+
+The database schema consists of the following main tables:
+
+### components
+- **id** (uuid, primary key)
+- **name** (text)
+- **description** (text)
+- **code** (text)
+- **preview_image_url** (text)
+- **language** (text)
+- **is_public** (boolean)
+- **owner_id** (uuid, foreign key to auth.users.id)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### tags
+- **id** (uuid, primary key)
+- **name** (text)
+- **created_at** (timestamptz)
+
+### component_tags (junction table)
+- **id** (uuid, primary key)
+- **component_id** (uuid, foreign key to components.id)
+- **tag_id** (uuid, foreign key to tags.id)
+- **created_at** (timestamptz)
+
+### profiles
+- **id** (uuid, primary key, linked to auth.users.id)
+- **full_name** (text)
+- **avatar_url** (text)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+The schema includes proper relationships:
+- Components are owned by users (via owner_id → auth.users.id)
+- Components can have multiple tags through the component_tags junction table
+- User profiles are linked to authentication system (via id → auth.users.id)
+
 # MyBlocks UI Design Overview
 
 ## Dashboard
