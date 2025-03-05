@@ -146,7 +146,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between max-w-md">
                 <div>
                   <h3 className="font-semibold">Free Plan</h3>
-                  <p className="text-sm text-muted-foreground mt-1">You're currently on the free plan</p>
+                  <p className="text-sm text-muted-foreground mt-1">You&apos;re currently on the free plan</p>
                 </div>
                 <Button className="bg-primary">Upgrade</Button>
               </div>
