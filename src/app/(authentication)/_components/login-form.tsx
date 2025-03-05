@@ -163,7 +163,7 @@ export function LoginForm({ onEmailSubmit }: LoginFormProps) {
           </div>
           
           {error && (
-            <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
+            <div className="rounded-lg mb-2 min-h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span>{error}</span>

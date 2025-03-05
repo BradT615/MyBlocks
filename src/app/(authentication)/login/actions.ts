@@ -19,12 +19,13 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      shouldCreateUser: false, // Prevent automatically creating new users
+      shouldCreateUser: false,
     }
   })
 
   if (error) {
-    return { error: error.message }
+    // Return a generic error message regardless of the specific error
+    return { error: "We couldn't find an account with that email address. Please check your email or sign up for a new account." }
   }
 
   return { success: 'Check your email for the verification code', email }
