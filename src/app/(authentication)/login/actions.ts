@@ -24,8 +24,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    // Return a generic error message regardless of the specific error
-    return { error: "We couldn't find an account with that email address. Please check your email or sign up for a new account." }
+    return { error: "An unexpected error occurred" }
   }
 
   return { success: 'Check your email for the verification code', email }

@@ -78,6 +78,12 @@ export function RegisterOTPVerificationForm({ email, onBack }: RegisterOTPFormPr
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && otpValue.length === 6 && !isVerifying) {
+      handleVerifyOtp();
+    }
+  };
+
   // Handle resend verification code
   async function handleResendCode() {
     if (!canResend) return
@@ -133,7 +139,7 @@ export function RegisterOTPVerificationForm({ email, onBack }: RegisterOTPFormPr
           </div>
           
           {/* OTP Input */}
-          <div className="flex justify-center">
+          <div className="flex justify-center" onKeyDown={handleKeyDown}>
             <OTPInput
               value={otpValue}
               onChange={setOtpValue}
