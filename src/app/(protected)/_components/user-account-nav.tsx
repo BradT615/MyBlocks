@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { createClient } from "@/utils/supabase/client"
 import { User } from "@supabase/supabase-js"
-import { LayoutDashboard, Settings, Users, LogOut, Home, Sun, Moon, PlusCircle, Monitor, Paintbrush } from "lucide-react"
+import { LayoutDashboard, Settings, LogOut, Home, Sun, Moon, Monitor, Paintbrush } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export function UserAccountNav() {
@@ -91,7 +91,7 @@ export function UserAccountNav() {
               <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
             ) : null}
             <AvatarFallback className="bg-primary/10 text-foreground font-medium">
-              {loading ? "BT" : getUserInitials()}
+              {loading ? "..." : getUserInitials()}
             </AvatarFallback>
           </Avatar>
         </Button>
@@ -119,16 +119,10 @@ export function UserAccountNav() {
           </DropdownMenuItem>
           
           <DropdownMenuItem asChild className="py-2 cursor-pointer hover:bg-accent">
-            <Link href="/dashboard/settings" className="flex items-center w-full">
+            <Link href="/settings" className="flex items-center w-full">
               <Settings className="mr-2 h-4 w-4" />
               Account Settings
             </Link>
-          </DropdownMenuItem>
-          
-          <DropdownMenuItem className="py-2 cursor-pointer flex items-center w-full hover:bg-accent">
-            <Users className="mr-2 h-4 w-4" />
-            Create Team
-            <PlusCircle className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
         </div>
         
