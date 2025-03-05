@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { createClient } from "@/utils/supabase/client"
 import { User } from "@supabase/supabase-js"
-import { LayoutDashboard, Settings, Users, LogOut, Home, Sun, Moon, PlusCircle, Monitor } from "lucide-react"
+import { LayoutDashboard, Settings, Users, LogOut, Home, Sun, Moon, PlusCircle, Monitor, Paintbrush } from "lucide-react"
 import { useTheme } from "next-themes"
 
 export function UserAccountNav() {
@@ -22,6 +22,7 @@ export function UserAccountNav() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const { setTheme } = useTheme()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   
   // Fetch user data on component mount
   useEffect(() => {
@@ -47,7 +48,7 @@ export function UserAccountNav() {
   
   // Get user initials for avatar fallback
   const getUserInitials = () => {
-    if (!user) return "BT"
+    if (!user) return "U"
     
     if (user.user_metadata?.full_name) {
       const names = user.user_metadata.full_name.split(' ')
@@ -67,19 +68,25 @@ export function UserAccountNav() {
       return emailName.charAt(0).toUpperCase()
     }
     
-    return "BT"
+    return "U"
   }
   
   const handleSignOut = async () => {
     await fetch("/auth/signout", { method: "POST" })
     router.refresh()
   }
+  
+  // Handle theme change without closing the dropdown
+  const handleThemeChange = (theme: string) => {
+    // Prevent event propagation to avoid dropdown closing
+    setTheme(theme)
+  }
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-10 w-10">
             {user?.user_metadata?.avatar_url ? (
               <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
             ) : null}
@@ -89,97 +96,112 @@ export function UserAccountNav() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-64 p-0 bg-black text-white border-zinc-800">
+      <DropdownMenuContent align="end" className="w-64">
         {/* User Info */}
         <div className="px-4 py-3">
           <p className="font-medium text-sm">
-            {user?.user_metadata?.full_name || "Bradley T."}
+            {user?.user_metadata?.full_name || "MyBlocks User"}
           </p>
-          <p className="text-xs text-zinc-400 truncate">
-            {user?.email || "bradtitus615@gmail.com"}
+          <p className="text-xs text-muted-foreground truncate">
+            {user?.email || "user@example.com"}
           </p>
         </div>
         
-        <DropdownMenuSeparator className="m-0 bg-zinc-800" />
+        <DropdownMenuSeparator />
         
         {/* Navigation Items */}
         <div className="p-1">
-          <DropdownMenuItem asChild className="py-2 hover:bg-zinc-800 text-white focus:bg-zinc-800 focus:text-white">
-            <Link href="/dashboard" className="cursor-pointer flex items-center">
+          <DropdownMenuItem asChild className="py-2 cursor-pointer hover:bg-accent">
+            <Link href="/dashboard" className="flex items-center w-full">
               <LayoutDashboard className="mr-2 h-4 w-4" />
               Dashboard
             </Link>
           </DropdownMenuItem>
           
-          <DropdownMenuItem asChild className="py-2 hover:bg-zinc-800 text-white focus:bg-zinc-800 focus:text-white">
-            <Link href="/dashboard/settings" className="cursor-pointer flex items-center">
+          <DropdownMenuItem asChild className="py-2 cursor-pointer hover:bg-accent">
+            <Link href="/dashboard/settings" className="flex items-center w-full">
               <Settings className="mr-2 h-4 w-4" />
               Account Settings
             </Link>
           </DropdownMenuItem>
           
-          <DropdownMenuItem className="py-2 cursor-pointer flex items-center hover:bg-zinc-800 text-white focus:bg-zinc-800 focus:text-white">
+          <DropdownMenuItem className="py-2 cursor-pointer flex items-center w-full hover:bg-accent">
             <Users className="mr-2 h-4 w-4" />
             Create Team
             <PlusCircle className="ml-auto h-4 w-4" />
           </DropdownMenuItem>
         </div>
         
-        <DropdownMenuSeparator className="m-0 bg-zinc-800" />
+        <DropdownMenuSeparator />
         
         {/* Theme */}
         <div className="p-1">
-          <DropdownMenuItem className="py-2 hover:bg-zinc-800 focus:bg-zinc-800 focus:text-white cursor-default flex items-center justify-between">
-            <span className="ml-6">Theme</span>
-            <div className="flex items-center space-x-1">
+          <div className="flex items-center px-2 py-1.5 text-sm">
+            <Paintbrush className="mr-2 h-4 w-4" />
+            <span>Theme</span>
+            <div className="flex items-center space-x-1 ml-auto border border-border/50 rounded-md">
               <button 
-                onClick={() => setTheme('light')}
-                className="h-6 w-6 rounded flex items-center justify-center hover:bg-zinc-700"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleThemeChange('light');
+                }}
+                className="h-8 w-8 rounded-l flex items-center justify-center hover:bg-accent"
+                aria-label="Light theme"
               >
                 <Sun className="h-4 w-4" />
               </button>
               <button 
-                onClick={() => setTheme('system')}
-                className="h-6 w-6 rounded flex items-center justify-center hover:bg-zinc-700"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleThemeChange('system');
+                }}
+                className="h-8 w-8 flex items-center justify-center hover:bg-accent"
+                aria-label="System theme"
               >
                 <Monitor className="h-4 w-4" />
               </button>
               <button 
-                onClick={() => setTheme('dark')}
-                className="h-6 w-6 rounded flex items-center justify-center hover:bg-zinc-700"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleThemeChange('dark');
+                }}
+                className="h-8 w-8 rounded-r flex items-center justify-center hover:bg-accent"
+                aria-label="Dark theme"
               >
                 <Moon className="h-4 w-4" />
               </button>
             </div>
-          </DropdownMenuItem>
+          </div>
         </div>
         
-        <DropdownMenuSeparator className="m-0 bg-zinc-800" />
+        <DropdownMenuSeparator />
         
         {/* Home and Logout */}
         <div className="p-1">
-          <DropdownMenuItem asChild className="py-2 hover:bg-zinc-800 text-white focus:bg-zinc-800 focus:text-white">
-            <Link href="/" className="cursor-pointer flex items-center">
+          <DropdownMenuItem asChild className="py-2 cursor-pointer hover:bg-accent">
+            <Link href="/" className="flex items-center w-full">
               <Home className="mr-2 h-4 w-4" />
               Home Page
             </Link>
           </DropdownMenuItem>
           
           <DropdownMenuItem 
-            className="py-2 cursor-pointer flex items-center hover:bg-zinc-800 text-white focus:bg-zinc-800 focus:text-white"
+            className="py-2 cursor-pointer flex items-center hover:bg-accent"
             onSelect={handleSignOut}
           >
             <LogOut className="mr-2 h-4 w-4" />
             Log Out
-            <LogOut className="ml-auto h-4 w-4 -rotate-90" />
           </DropdownMenuItem>
         </div>
         
-        <DropdownMenuSeparator className="m-0 bg-zinc-800" />
+        <DropdownMenuSeparator />
         
         {/* Upgrade Button */}
         <div className="p-2">
-          <Button className="w-full rounded-md hover:bg-zinc-800 bg-zinc-900 border border-zinc-700 text-white">
+          <Button variant="default" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
             Upgrade to Pro
           </Button>
         </div>
