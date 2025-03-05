@@ -23,24 +23,17 @@ The platform is designed to solve collaboration challenges between design and de
 - **TypeScript**: For type safety and improved developer experience
 
 ### Interactive Features
-- **CodeMirror**: For code display and light editing
+- **Sandpack**: For code display and light editing
 - **React-Live**: For real-time component preview rendering
 - **Zustand**: Lightweight state management
 
 ### Backend & Data
 - **Supabase**: Authentication, database, and storage solution built on PostgreSQL
-- **Prisma**: Type-safe ORM for database interactions
 - **PostgreSQL**: Relational database for component and user data (provided by Supabase)
 - **Supabase Storage**: File storage for component assets
 
-### Component Analysis
-- **Babel**: For parsing React components
-- **TypeScript Compiler API**: For analyzing component types and props
-- **PostCSS**: For CSS analysis and transformation
-
 ### Deployment & Payments
 - **Vercel**: Hosting and deployment platform
-- **GitHub Actions**: CI/CD pipeline
 - **Stripe**: Payment processing and subscription management
 
 # MyBlocks UI Design Overview
@@ -62,7 +55,7 @@ The **Component Gallery** is the core of MyBlocks, providing a structured and in
 Each component has a dedicated **detail page**, offering:
 - **Live Preview**: Real-time rendering of the component using React-Live.
 - **Props Customization**: Interactive UI for tweaking component props.
-- **Code View**: Displays the component's JSX/TSX with syntax highlighting (CodeMirror).
+- **Code View**: Displays the component's JSX/TSX with syntax highlighting.
 - **Version History**: Access previous versions with changelogs.
 - **Design Specs**: View typography, color palettes, spacing, and usage guidelines.
 - **Export Options**: Download component files, copy styles, or get installation instructions.
