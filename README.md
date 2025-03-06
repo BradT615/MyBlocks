@@ -34,7 +34,7 @@ The platform is designed to solve collaboration challenges between design and de
 
 ### Deployment & Payments
 - **Vercel**: Hosting and deployment platform
-- **Stripe**: Payment processing and subscription management
+- **Polar**: Payment processing and subscription management
 
 ## Database Schema
 
