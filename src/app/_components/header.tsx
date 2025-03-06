@@ -64,6 +64,12 @@ export function Header() {
           >
             Pricing
           </Link>
+          <Link 
+            href="/community" 
+            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Community
+          </Link>
         </nav>
         
         {/* Right-side actions */}

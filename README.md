@@ -4,7 +4,7 @@ A comprehensive platform that bridges the gap between designers and developers b
 
 ## Project Overview
 
-MyBlocks serves as a centralized hub where teams can:
+MyBlocks serves as a centralized hub where teams can privately:
 
 - Browse, search, and filter components in a visual gallery
 - Upload and manage components with version tracking
@@ -114,13 +114,8 @@ MyBlocks supports various **theming and preview modes** to simulate real-world u
 
 ## User Account & Subscription Management
 - **Profile Dashboard**: View saved components, collections, and account settings.
-- **Subscription Management**: Upgrade plans, track usage limits, and manage billing (via Stripe).
+- **Subscription Management**: Upgrade plans, track usage limits, and manage billing (via Polar).
 - **Favorites & Collections**: Save and organize favorite components into collections.
-
-## Additional Features
-- **Collaboration Tools**: Commenting and sharing options for teams.
-- **API Access**: Generate API keys for integrating components into external projects.
-- **Accessibility Insights**: Automated checks for WCAG compliance.
 
 This UI ensures a smooth, feature-rich experience for both designers and developers, making MyBlocks a powerful bridge between design and code.
 
