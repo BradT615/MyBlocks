@@ -49,7 +49,7 @@ export function SidebarNav() {
   const pathname = usePathname()
 
   return (
-    <div className="space-y-1 px-2">
+    <div className="space-y-1 px-2 py-2">
       {navItems.map((item) => {
         const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
         
@@ -58,7 +58,7 @@ export function SidebarNav() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center rounded-md px-3 py-2 text-sm font-medium",
+              "flex items-center rounded-md px-3 py-2.5 text-sm font-medium",
               "transition-colors hover:bg-accent hover:text-accent-foreground",
               isActive ? "bg-accent/50 text-accent-foreground" : "transparent text-muted-foreground"
             )}
