@@ -48,7 +48,17 @@ The database schema consists of the following main tables:
 - **preview_image_url** (text)
 - **language** (text)
 - **is_public** (boolean)
+- **utilities** (text) - Comma-separated list of utility libraries used
 - **owner_id** (uuid, foreign key to auth.users.id)
+- **created_at** (timestamptz)
+- **updated_at** (timestamptz)
+
+### component_files
+- **id** (uuid, primary key)
+- **component_id** (uuid, foreign key to components.id)
+- **filename** (text)
+- **code** (text)
+- **language** (text)
 - **created_at** (timestamptz)
 - **updated_at** (timestamptz)
 
@@ -72,6 +82,7 @@ The database schema consists of the following main tables:
 
 The schema includes proper relationships:
 - Components are owned by users (via owner_id → auth.users.id)
+- Components can have multiple files (via component_id in component_files)
 - Components can have multiple tags through the component_tags junction table
 - User profiles are linked to authentication system (via id → auth.users.id)
 

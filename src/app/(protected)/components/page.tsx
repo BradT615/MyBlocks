@@ -1,15 +1,25 @@
+// src/app/(protected)/components/page.tsx
+"use client"
+
+import { useState } from 'react'
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { PlusCircle } from 'lucide-react'
+import { ComponentUploadModal } from '@/app/(protected)/_components/component-upload-modal'
 
 export default function ComponentsPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  
   return (
     <>
       <DashboardHeader 
         heading="Components" 
         text="Manage your UI components library"
       >
-        <Button className="flex items-center gap-1">
+        <Button 
+          className="flex items-center gap-1"
+          onClick={() => setIsModalOpen(true)}
+        >
           <PlusCircle className="h-4 w-4" />
           <span>Add Component</span>
         </Button>
@@ -21,12 +31,20 @@ export default function ComponentsPage() {
           <p className="text-muted-foreground mb-6">
             Create your first component to get started with your component library
           </p>
-          <Button className="flex items-center gap-1">
+          <Button 
+            className="flex items-center gap-1"
+            onClick={() => setIsModalOpen(true)}
+          >
             <PlusCircle className="h-4 w-4" />
             <span>Add First Component</span>
           </Button>
         </div>
       </div>
+      
+      <ComponentUploadModal
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </>
   )
 }

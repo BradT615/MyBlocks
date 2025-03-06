@@ -85,7 +85,7 @@ export function UserAccountNav() {
   return (
     <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             {user?.user_metadata?.avatar_url ? (
               <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
