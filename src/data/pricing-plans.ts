@@ -12,52 +12,44 @@ export interface PricingPlan {
 export const pricingPlans: PricingPlan[] = [
   {
     name: "Free",
-    description: "For designers exploring component libraries",
+    description: "For exploring the component library",
     price: "$0",
     features: [
       "Browse public component gallery",
       "Limited component uploads (5 max)",
-      "Basic preview functionality",
-      "Light mode theme only",
-      "View component code (read-only)",
-      "Community forum support"
+      "Basic component preview",
+      "Copy component code",
+      "Basic tagging"
     ],
     buttonText: "Get Started"
   },
   {
     name: "Pro",
     description: "For individual designers & developers",
-    price: "$15",
+    price: "$9",
     popularPlan: true,
     features: [
       "Everything in Free tier",
-      "Unlimited personal component uploads",
-      "Responsive previews (all viewport sizes)",
-      "Light/dark mode toggles",
-      "Component versioning (last 10 versions)",
-      "Export to multiple frameworks",
-      "Props customization interface",
-      "Personal collections",
+      "Unlimited component uploads",
+      "Light/dark mode preview",
+      "Save favorite components",
+      "Priority in search results",
       "Email support"
     ],
-    buttonText: "Start 14-Day Trial"
+    buttonText: "Start 7-Day Trial"
   },
   {
-    name: "Team",
-    description: "For design & development teams",
-    price: "$39",
+    name: "Early Adopter",
+    description: "For supporters & early feedback",
+    price: "$19",
     features: [
       "Everything in Pro tier",
-      "Team workspace (up to 10 members)",
-      "Role-based access controls",
-      "Unlimited component versioning",
-      "Custom collections and organization",
-      "Component usage analytics",
-      "Custom theming options",
-      "Design specifications export",
-      "Collaborative feedback tools",
-      "Priority support"
+      "Early access to new features",
+      "Vote on roadmap priorities",
+      "Lifetime discount on future plans",
+      "Direct chat support",
+      "Custom feature request"
     ],
-    buttonText: "Start 14-Day Trial"
+    buttonText: "Join Early Adopters"
   }
 ];

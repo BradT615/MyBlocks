@@ -1,140 +1,112 @@
-# MyBlocks
+# MyBlocks MVP
 
-A comprehensive platform that bridges the gap between designers and developers by providing an interactive gallery of UI components with code access, visual previews, and design specifications. Visit us at [myblocks.dev](https://myblocks.dev).
+A streamlined platform that bridges the gap between designers and developers by providing a gallery of UI components with code access and visual previews. Visit us at [myblocks.dev](https://myblocks.dev).
 
 ## Project Overview
 
-MyBlocks serves as a centralized hub where teams can privately:
+MyBlocks serves as a centralized hub where teams can:
 
-- Browse, search, and filter components in a visual gallery
-- Upload and manage components with version tracking
-- Preview components in different viewport sizes and themes
-- Access and export component code with customizable props
-- View design specifications including colors, typography, and spacing
+- Browse and search components in a visual gallery
+- Upload and share components
+- Preview components in light and dark modes
+- Access and copy component code
+- Tag and categorize components for easy discovery
 
-The platform is designed to solve collaboration challenges between design and development teams by creating a shared visual language and resource repository.
+The platform solves collaboration challenges between design and development teams by creating a shared visual language and resource repository.
 
 ## Tech Stack
 
 ### Frontend
-- **Next.js**: React framework with App Router for server components and routing
-- **Tailwind CSS**: Utility-first CSS framework for consistent styling
+- **Next.js**: React framework with App Router
+- **Tailwind CSS**: Utility-first CSS framework
 - **Shadcn/UI**: Component library built on Radix UI primitives
-- **TypeScript**: For type safety and improved developer experience
+- **TypeScript**: For type safety
 
 ### Interactive Features
-- **Sandpack**: For code display and light editing
-- **React-Live**: For real-time component preview rendering
-- **Zustand**: Lightweight state management
+- **Sandpack**: For code display
+- **React-Live**: For basic component preview rendering
 
 ### Backend & Data
-- **Supabase**: Authentication, database, and storage solution built on PostgreSQL
-- **PostgreSQL**: Relational database for component and user data (provided by Supabase)
+- **Supabase**: Authentication, database, and storage
+- **PostgreSQL**: Relational database (provided by Supabase)
 - **Supabase Storage**: File storage for component assets
 
-### Deployment & Payments
+### Deployment
 - **Vercel**: Hosting and deployment platform
-- **Polar**: Payment processing and subscription management
 
 ## Database Schema
 
-The database schema consists of the following main tables:
+The simplified database schema consists of the following main tables:
 
 ### components
 - **id** (uuid, primary key)
 - **name** (text)
 - **description** (text)
 - **code** (text)
-- **preview_image_url** (text)
 - **language** (text)
 - **is_public** (boolean)
-- **utilities** (text) - Comma-separated list of utility libraries used
 - **owner_id** (uuid, foreign key to auth.users.id)
 - **created_at** (timestamptz)
-- **updated_at** (timestamptz)
-
-### component_files
-- **id** (uuid, primary key)
-- **component_id** (uuid, foreign key to components.id)
-- **filename** (text)
-- **code** (text)
-- **language** (text)
-- **created_at** (timestamptz)
-- **updated_at** (timestamptz)
 
 ### tags
 - **id** (uuid, primary key)
-- **name** (text)
-- **created_at** (timestamptz)
+- **name** (text, unique)
 
 ### component_tags (junction table)
-- **id** (uuid, primary key)
 - **component_id** (uuid, foreign key to components.id)
 - **tag_id** (uuid, foreign key to tags.id)
-- **created_at** (timestamptz)
+- **primary key** (component_id, tag_id)
 
-### profiles
-- **id** (uuid, primary key, linked to auth.users.id)
-- **full_name** (text)
-- **avatar_url** (text)
-- **created_at** (timestamptz)
-- **updated_at** (timestamptz)
+## MyBlocks MVP Features
 
-The schema includes proper relationships:
-- Components are owned by users (via owner_id → auth.users.id)
-- Components can have multiple files (via component_id in component_files)
-- Components can have multiple tags through the component_tags junction table
-- User profiles are linked to authentication system (via id → auth.users.id)
+### Component Gallery
+- Grid view of components with basic search functionality
+- Simple filtering by tags
+- Basic sorting options (newest, popular)
 
-# MyBlocks UI Design Overview
+### Component Detail Page
+- Code display with syntax highlighting
+- Basic component preview
+- Light/dark mode toggle
+- Tag display
+- Copy code functionality
 
-## Dashboard
-The **dashboard** serves as the primary hub for navigating MyBlocks. It presents:
-- A personalized welcome message and quick access to recent activity.
-- A **search bar** for finding components quickly.
-- An **overview panel** displaying uploaded components, version tracking, and popular collections.
+### Upload Components
+- Simple form-based component upload
+- Basic metadata: name, description, tags
+- Code input
 
-## Component Gallery
-The **Component Gallery** is the core of MyBlocks, providing a structured and interactive browsing experience:
-- **Grid/List Views**: Users can switch between grid and list layouts for better visualization.
-- **Filter & Sort Panel**: Filter by categories, tags, component types, or design frameworks.
-- **Hover Previews**: Quick hover-based previews allow users to see component details without clicking.
-- **Quick Actions**: Save to favorites, add to collections, or copy code directly.
+### User Features
+- Supabase authentication (sign up/login)
+- Basic user profiles
+- Ability to view owned components
 
-## Component Detail Page
-Each component has a dedicated **detail page**, offering:
-- **Live Preview**: Real-time rendering of the component using React-Live.
-- **Props Customization**: Interactive UI for tweaking component props.
-- **Code View**: Displays the component's JSX/TSX with syntax highlighting.
-- **Version History**: Access previous versions with changelogs.
-- **Design Specs**: View typography, color palettes, spacing, and usage guidelines.
-- **Export Options**: Download component files, copy styles, or get installation instructions.
+## Development Roadmap
 
-## Upload & Manage Components
-Users can upload and manage their UI components with:
-- **Drag-and-Drop Uploader**: Simplifies adding new components.
-- **Metadata Form**: Allows tagging, descriptions, and categorization.
-- **Version Control**: Track changes and maintain different versions.
-- **Access Control**: Set visibility (public, private, team-only).
+### Phase 1: Core Repository
+- Authentication
+- Component gallery
+- Component detail view
+- Basic component upload
 
-## Theming & Preview Modes
-MyBlocks supports various **theming and preview modes** to simulate real-world usage:
-- **Light/Dark Mode Toggle**: Switch between themes dynamically.
-- **Responsive Testing**: Preview components across different screen sizes.
-- **Frame Simulation**: Mock component usage in different application layouts.
+### Phase 2: Enhanced Features
+- Component previews
+- Light/dark mode toggle
+- Tagging system
 
-## User Account & Subscription Management
-- **Profile Dashboard**: View saved components, collections, and account settings.
-- **Subscription Management**: Upgrade plans, track usage limits, and manage billing (via Polar).
-- **Favorites & Collections**: Save and organize favorite components into collections.
+### Phase 3: User Experience
+- Favorites functionality
+- Improved search and filtering
+- Basic user profiles
 
-This UI ensures a smooth, feature-rich experience for both designers and developers, making MyBlocks a powerful bridge between design and code.
-
-### User Management
-- Basic Accounts
-- Favorites
-- Usage Limits
-- Subscription Management
+## Future Enhancements (Post-MVP)
+- Version history
+- Multiple files per component
+- Interactive prop editing
+- Collections and organization
+- Responsive testing
+- Advanced export options
+- Collaboration features
 
 ## License
 
