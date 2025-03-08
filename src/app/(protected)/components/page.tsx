@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { PlusCircle } from 'lucide-react'
-import { ComponentUploadModal } from '@/app/(protected)/_components/component-upload-modal'
+import { ComponentUploadModal } from '@/app/(protected)/_components/component-upload'
 
 export default function ComponentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false)
