@@ -24,7 +24,6 @@ export default async function LoginPage() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-between">
-      {/* Responsive Header */}
       <header className="fixed top-0 left-0 right-0 p-6 z-20">
         <div className="max-w-7xl">
           <Link
@@ -46,11 +45,9 @@ export default async function LoginPage() {
       </header>
 
       <div className="h-12 w-full"></div>
-      
       <div className="relative w-full max-w-md px-4 pb-8 sm:py-12 sm:px-8">
         <LoginClientPage />
       </div>
-      
       <footer className="h-12 flex items-center justify-center text-center text-sm text-muted-foreground">
         &copy; {new Date().getFullYear()} MyBlocks. All rights reserved.
       </footer>

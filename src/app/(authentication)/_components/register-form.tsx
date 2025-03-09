@@ -118,22 +118,20 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
 
   return (
     <>
-      {/* Header section */}
       <div className="mb-8 flex flex-col items-center text-center">
         <MyBlocksLogo width={72} height={72} variant="filled" className="mb-6 text-primary" />
-        <h1 className="text-3xl font-bold tracking-tight">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">
           Create an account
         </h1>
-        <p className="mt-2 text-muted-foreground">
+        <p className="text-muted-foreground">
           Sign up to get started with MyBlocks
         </p>
       </div>
 
       <div className="w-full">
-        <form action={handleSubmit} className="space-y-4">
-          {/* Email field */}
-          <div className="flex flex-col space-y-2">
-            <div className="flex justify-between items-center px-1">
+        <form action={handleSubmit}>
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center px-1 mb-1">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email
               </Label>
@@ -141,7 +139,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
                 <p className="text-xs text-red-500">{emailError}</p>
               )}
             </div>
-            <div className="relative">
+            <div className="relative mb-4">
               <Input
                 id="email"
                 name="email"
@@ -163,7 +161,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
           </div>
           
           {error && (
-            <div className="rounded-lg mb-2 h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
+            <div className="rounded-lg mb-4 min-h-10 bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-500 dark:bg-red-900/20">
               <div className="flex items-center gap-2">
                 <AlertCircle className="h-4 w-4 flex-shrink-0" />
                 <span>{error}</span>
@@ -171,12 +169,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
             </div>
           )}
           
-          <Button 
-            type="submit" 
-            className="w-full h-12 mt-2 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 
-                    transition-all focus-visible:ring-2 focus-visible:ring-primary"
-            disabled={isLoading || !!emailError}
-          >
+          <Button type="submit" className="w-full h-12" disabled={isLoading || !!emailError}>
             {isLoading ? (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -187,13 +180,13 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
             )}
           </Button>
         
-          <div className="relative py-2">
+          <div className="relative py-6">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-border/50" />
+              <span className="w-full border-t border-border"/>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background/70 backdrop-blur-sm px-2 text-muted-foreground">
-                Or continue with
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-2 text-muted-foreground">
+                OR CONTINUE WITH
               </span>
             </div>
           </div>
@@ -203,8 +196,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
               variant="outline"
               type="button"
               disabled={isLoading}
-              className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
-                      flex items-center justify-center gap-2 font-medium transition-all"
+              className="h-12 gap-2"
               onClick={handleGithubSignIn}
             >
               <Github className="h-4 w-4" />
@@ -215,8 +207,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
               variant="outline"
               type="button"
               disabled={isLoading}
-              className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
-                      flex items-center justify-center gap-2 font-medium transition-all"
+              className="h-12 gap-2"
               onClick={handleGoogleSignIn}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" style={{ color: "#4285F4" }}>
@@ -232,8 +223,7 @@ export function RegisterForm({ onEmailSubmit }: RegisterFormProps) {
               variant="outline"
               type="button"
               disabled={isLoading}
-              className="h-12 rounded-lg border-border/50 bg-background/70 backdrop-blur-sm hover:bg-accent/50
-                      flex items-center justify-center gap-2 font-medium transition-all"
+              className="h-12 gap-2"
               onClick={handleFigmaSignIn}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" style={{ color: "#0ACF83" }}>
