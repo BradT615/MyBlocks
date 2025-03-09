@@ -133,8 +133,6 @@ export function HeroSection() {
           </div>
           
           <div className="relative">
-            <div className="absolute -z-10 w-full h-full blur-3xl opacity-20 dark:opacity-10 bg-gradient-to-br from-gray-300 via-gray-200 to-gray-400 dark:from-gray-700 dark:via-gray-600 dark:to-gray-800 rounded-full transform translate-x-1/4 translate-y-1/4"></div>
-            
             <GlassCard className="relative z-0">
               <div className="relative p-1">
                 <CodeMock />
