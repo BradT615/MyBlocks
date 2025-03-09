@@ -1,12 +1,13 @@
 // src/app/page.tsx
-import { Header } from "@/app/_components/header"
-import { Footer } from "@/app/_components/footer"
-import { HeroSection } from "@/app/_components/hero-section"
-import { FeaturesSection } from "@/app/_components/features-section"
-import { HowItWorksSection } from "@/app/_components/how-it-works-section"
-import { PricingSection } from "@/app/_components/pricing-section"
-import { FAQSection } from "@/app/_components/faq-section"
-import { CTASection } from "@/app/_components/cta-section"
+import { Header } from "./_components/header"
+import { Footer } from "./_components/footer"
+import { HeroSection } from "./_components/hero-section"
+import { FeaturesSection } from "./_components/features-section"
+import { HowItWorksSection } from "./_components/how-it-works-section"
+import { TestimonialsSection } from "./_components/testimonials-section"
+import { PricingSection } from "./_components/pricing-section"
+import { FAQSection } from "./_components/faq-section"
+import { CTASection } from "./_components/cta-section"
 
 export default function Home() {
   return (
@@ -15,8 +16,9 @@ export default function Home() {
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />
-      <PricingSection />
+      <TestimonialsSection />
       <FAQSection />
+      <PricingSection />
       <CTASection />
       <Footer />
     </main>

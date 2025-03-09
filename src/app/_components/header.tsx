@@ -1,12 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { Menu } from "lucide-react"
-import { useEffect, useState } from "react"
+import { Menu, X } from "lucide-react"
+import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { MyBlocksLogo } from "@/components/MyBlocksLogo"
-import { cn } from "@/lib/utils"
 import { createClient } from "@/utils/supabase/client"
 import { User } from "@supabase/supabase-js"
 
@@ -34,81 +34,145 @@ export function Header() {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/70 backdrop-blur">
-      <div className="w-full px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-center relative">
-        {/* Logo */}
-        <div className="absolute left-4 sm:left-6 lg:left-8 flex items-center gap-2">
-          <Link href="/" className="group flex items-center gap-2 transition-all duration-300 hover:opacity-90">
-            <MyBlocksLogo width={32} height={32} variant="filled" />
-            <span className="text-xl font-bold">MyBlocks</span>
+    <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-background/80 border-b border-white/10">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8 flex h-16 items-center justify-between">
+        <div className="flex items-center">
+          <Link 
+            href="/" 
+            className="group flex items-center gap-2 transition-all hover:opacity-90"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <MyBlocksLogo width={32} height={32} variant="filled" />
+            </motion.div>
+            <motion.span 
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="text-xl font-bold"
+            >
+              MyBlocks
+            </motion.span>
           </Link>
         </div>
-        
+
         {/* Desktop navigation */}
-        <nav className="hidden md:flex items-center gap-6">
-          <Link 
-            href="#features" 
-            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+        <nav className="hidden md:flex items-center gap-8">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
-            Features
-          </Link>
-          <Link 
-            href="#benefits" 
-            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-          >
-            Benefits
-          </Link>
-          <Link 
-            href="#pricing" 
-            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-          >
-            Pricing
-          </Link>
-          <Link 
-            href="/community" 
-            className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
-          >
-            Community
-          </Link>
-        </nav>
-        
-        {/* Right-side actions */}
-        <div className="absolute right-4 sm:right-6 lg:right-8 hidden md:flex items-center gap-4">
-          <ThemeToggle />
-          {user ? (
-            <Button 
-              asChild
-              className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+            <Link 
+              href="#features" 
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
             >
-              <Link href="/dashboard">
-                Dashboard
-              </Link>
-            </Button>
-          ) : (
-            <>
-              <Button 
-                variant="ghost"
-                asChild
-                className="rounded-md transition-all"
-              >
-                <Link href="/login">
-                  Sign In
-                </Link>
-              </Button>
+              Features
+            </Link>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <Link 
+              href="#benefits" 
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Benefits
+            </Link>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <Link 
+              href="#pricing" 
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Pricing
+            </Link>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <Link 
+              href="/community" 
+              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Community
+            </Link>
+          </motion.div>
+        </nav>
+
+        {/* Right side actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            <ThemeToggle />
+          </motion.div>
+          
+          {user ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
               <Button 
                 asChild
                 className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
               >
-                <Link href="/register">
-                  Sign Up
+                <Link href="/dashboard">
+                  Dashboard
                 </Link>
               </Button>
+            </motion.div>
+          ) : (
+            <>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.6 }}
+              >
+                <Button 
+                  variant="ghost"
+                  asChild
+                  className="rounded-md transition-all"
+                >
+                  <Link href="/login">
+                    Sign In
+                  </Link>
+                </Button>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+              >
+                <Button 
+                  asChild
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                >
+                  <Link href="/register">
+                    Sign Up
+                  </Link>
+                </Button>
+              </motion.div>
             </>
           )}
         </div>
         
-        {/* Mobile navigation toggle */}
-        <div className="absolute right-4 sm:right-6 lg:right-8 flex items-center gap-2 md:hidden">
+        {/* Mobile menu button */}
+        <div className="md:hidden flex items-center gap-2">
           <ThemeToggle />
           <Button 
             variant="ghost" 
@@ -116,73 +180,88 @@ export function Header() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-foreground/70 hover:text-foreground hover:bg-accent/50 rounded-full"
           >
-            <Menu className="h-5 w-5" />
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
         </div>
       </div>
       
-      {/* Mobile navigation menu */}
+      {/* Mobile menu */}
       {isMenuOpen && (
-        <div className={cn(
-          "container py-4 md:hidden",
-          "border-t border-border/20 bg-background/95 backdrop-blur"
-        )}>
-          <nav className="flex flex-col space-y-4">
-            <Link 
-              href="#features" 
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Features
-            </Link>
-            <Link 
-              href="#benefits" 
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Benefits
-            </Link>
-            <Link 
-              href="#pricing" 
-              className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Pricing
-            </Link>
-            <div className="flex flex-col space-y-2 pt-2">
-              {user ? (
-                <Button 
-                  asChild
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
-                >
-                  <Link href="/dashboard">
-                    Dashboard
-                  </Link>
-                </Button>
-              ) : (
-                <>
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }} 
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          className="md:hidden border-t border-white/10 bg-background/95 backdrop-blur-md"
+        >
+          <div className="container py-4">
+            <nav className="flex flex-col space-y-4">
+              <Link 
+                href="#features" 
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link 
+                href="#benefits" 
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Benefits
+              </Link>
+              <Link 
+                href="#pricing" 
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Pricing
+              </Link>
+              <Link 
+                href="/community" 
+                className="text-sm font-medium text-foreground/70 hover:text-foreground transition-colors" 
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Community
+              </Link>
+              <div className="flex flex-col space-y-2 pt-2">
+                {user ? (
                   <Button 
                     asChild
                     className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
                   >
-                    <Link href="/login">
-                      Sign In
+                    <Link href="/dashboard">
+                      Dashboard
                     </Link>
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    asChild
-                    className="border-border bg-background hover:bg-accent/50 hover:text-accent-foreground/90 rounded-md shadow-sm hover:shadow-md transition-all"
-                  >
-                    <Link href="/register">
-                      Sign Up
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </nav>
-        </div>
+                ) : (
+                  <>
+                    <Button 
+                      asChild
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                    >
+                      <Link href="/login">
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      asChild
+                      className="border-border bg-background hover:bg-accent/50 hover:text-accent-foreground/90 rounded-md shadow-sm hover:shadow-md transition-all"
+                    >
+                      <Link href="/register">
+                        Sign Up
+                      </Link>
+                    </Button>
+                  </>
+                )}
+              </div>
+            </nav>
+          </div>
+        </motion.div>
       )}
     </header>
   )
