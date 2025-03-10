@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useState } from 'react';
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header';
 import { Button } from '@/components/ui/button';
