@@ -86,49 +86,51 @@ export function TabbedFileList({
         </TooltipProvider>
       </div>
 
-      {/* Chrome-like tabs */}
+      {/* Chrome-like tabs with horizontal scroll */}
       <div className="flex flex-col">
-        <div className="flex border-b overflow-x-auto no-scrollbar">
-          {files.map((file) => (
+        <div className="border-b flex overflow-x-auto overflow-y-hidden h-10">
+          <div className="flex min-w-max">
+            {files.map((file) => (
+              <div 
+                key={file.id}
+                className={cn(
+                  "flex items-center flex-shrink-0 gap-1.5 px-3 py-2 border-r relative cursor-pointer group",
+                  "text-sm transition-colors hover:bg-muted/50 hover:text-foreground",
+                  file.id === activeFileId 
+                    ? "bg-muted/70 text-foreground font-medium border-b-2 border-b-primary -mb-[1px]" 
+                    : "text-muted-foreground"
+                )}
+                onClick={() => setActiveFileId(file.id)}
+              >
+                <FileCode className="h-3.5 w-3.5" />
+                <span className="truncate max-w-[120px]">{file.filename}</span>
+                {files.length > 1 && (
+                  <button
+                    type="button"
+                    className={cn(
+                      "rounded-full p-0.5 hover:bg-muted",
+                      "text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity",
+                      file.id === activeFileId ? "opacity-100" : ""
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onRemoveFile(file.id)
+                    }}
+                  >
+                    <X className="h-3 w-3" />
+                    <span className="sr-only">Close tab</span>
+                  </button>
+                )}
+              </div>
+            ))}
             <div 
-              key={file.id}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 border-r relative cursor-pointer group",
-                "text-sm transition-colors hover:bg-muted/50 hover:text-foreground",
-                file.id === activeFileId 
-                  ? "bg-muted/70 text-foreground font-medium border-b-2 border-b-primary -mb-[1px]" 
-                  : "text-muted-foreground"
-              )}
-              onClick={() => setActiveFileId(file.id)}
+              className="px-2 py-2 border-r text-muted-foreground cursor-pointer hover:bg-muted/50 flex-shrink-0"
+              onClick={onAddFile}
             >
-              <FileCode className="h-3.5 w-3.5" />
-              <span className="truncate max-w-[120px]">{file.filename}</span>
-              {files.length > 1 && (
-                <button
-                  type="button"
-                  className={cn(
-                    "rounded-full p-0.5 hover:bg-muted",
-                    "text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity",
-                    file.id === activeFileId ? "opacity-100" : ""
-                  )}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onRemoveFile(file.id)
-                  }}
-                >
-                  <X className="h-3 w-3" />
-                  <span className="sr-only">Close tab</span>
-                </button>
-              )}
+              <Plus className="h-4 w-4" />
             </div>
-          ))}
-          <div 
-            className="px-2 py-2 border-r text-muted-foreground cursor-pointer hover:bg-muted/50"
-            onClick={onAddFile}
-          >
-            <Plus className="h-4 w-4" />
+            <div className="flex-1 border-b"></div>
           </div>
-          <div className="flex-1 border-b"></div>
         </div>
 
         {/* Active file content */}

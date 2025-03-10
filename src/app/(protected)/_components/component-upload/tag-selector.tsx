@@ -108,7 +108,7 @@ const TagSelector = memo(({ selectedTags, onTagsChange }: TagSelectorProps) => {
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label htmlFor="tag-search" className="text-sm font-medium">Component Tags</Label>
-        <div className="relative w-1/2">
+        <div className="relative w-1/3">
           <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             id="tag-search"
