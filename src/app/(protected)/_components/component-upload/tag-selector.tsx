@@ -1,164 +1,247 @@
 "use client"
 
-import { useState } from "react"
-import { Check, ChevronsUpDown, PlusCircle, Tag, X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "@/components/ui/command"
+import { useState, useEffect, useRef, useCallback, useMemo, memo } from "react"
+import { PlusCircle, X, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
+// Import Button from UI components instead of defining it in the same file
+import { Button } from "@/components/ui/button"
 
-// Pre-defined tag options that are commonly used
-const defaultTags = [
-  { value: "button", label: "Button" },
-  { value: "form", label: "Form" },
-  { value: "card", label: "Card" },
-  { value: "layout", label: "Layout" },
-  { value: "navigation", label: "Navigation" },
-  { value: "input", label: "Input" },
-  { value: "ui", label: "UI" },
-  { value: "responsive", label: "Responsive" },
-  { value: "dropdown", label: "Dropdown" },
-  { value: "modal", label: "Modal" },
-  { value: "header", label: "Header" },
-  { value: "footer", label: "Footer" },
-  { value: "dashboard", label: "Dashboard" },
-  { value: "sidebar", label: "Sidebar" },
-  { value: "menu", label: "Menu" },
-  { value: "tab", label: "Tab" },
-  { value: "accordion", label: "Accordion" },
-  { value: "dialog", label: "Dialog" },
-  { value: "typography", label: "Typography" },
-  { value: "tooltip", label: "Tooltip" },
+// Move to a separate constants file for better organization
+const DEFAULT_TAGS = [
+  "button", "form", "card", "layout", "navigation", "input", "ui", "responsive", 
+  "dropdown", "modal", "header", "footer", "dashboard", "sidebar", "menu", 
+  "tab", "accordion", "dialog", "typography", "tooltip", "list", "grid",
+  "animation", "notification", "slider", "loader", "avatar", "chart", "table"
 ]
+
+// Animation properties defined outside component to prevent recreation
+const TRANSITION_PROPS = {
+  type: "spring",
+  stiffness: 500,
+  damping: 30,
+  mass: 0.5,
+  layout: false
+}
 
 interface TagSelectorProps {
   selectedTags: string[];
   onTagsChange: (tags: string[]) => void;
 }
 
-export function TagSelector({ selectedTags, onTagsChange }: TagSelectorProps) {
-  const [open, setOpen] = useState(false)
-  const [inputValue, setInputValue] = useState("")
-
-  const handleAddCustomTag = () => {
-    if (inputValue && !selectedTags.includes(inputValue.toLowerCase())) {
-      const newTag = inputValue.toLowerCase().trim()
-      if (newTag && !/^\s*$/.test(newTag)) {
-        onTagsChange([...selectedTags, newTag])
-      }
-    }
-    setInputValue("")
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter" && inputValue) {
-      e.preventDefault()
-      handleAddCustomTag()
-    }
-  }
-
-  const handleSelect = (value: string) => {
-    if (selectedTags.includes(value)) {
-      onTagsChange(selectedTags.filter(tag => tag !== value))
+const TagSelector = memo(({ selectedTags, onTagsChange }: TagSelectorProps) => {
+  const [searchQuery, setSearchQuery] = useState("")
+  const [customTagInput, setCustomTagInput] = useState("")
+  const [showCustomInput, setShowCustomInput] = useState(false)
+  const tagContainerRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  
+  // Memoize handlers with useCallback to prevent unnecessary re-renders
+  const toggleTag = useCallback((tag: string) => {
+    if (selectedTags.includes(tag)) {
+      onTagsChange(selectedTags.filter(t => t !== tag))
     } else {
-      onTagsChange([...selectedTags, value])
+      onTagsChange([...selectedTags, tag])
     }
-  }
+  }, [selectedTags, onTagsChange])
 
-  const handleRemoveTag = (tag: string) => {
-    onTagsChange(selectedTags.filter(t => t !== tag))
-  }
+  const addCustomTag = useCallback(() => {
+    const trimmedInput = customTagInput.trim().toLowerCase()
+    if (trimmedInput && !selectedTags.includes(trimmedInput)) {
+      onTagsChange([...selectedTags, trimmedInput])
+      setCustomTagInput("")
+      setShowCustomInput(false)
+    }
+  }, [customTagInput, selectedTags, onTagsChange])
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && customTagInput.trim()) {
+      e.preventDefault()
+      addCustomTag()
+    } else if (e.key === "Escape") {
+      setShowCustomInput(false)
+      setCustomTagInput("")
+    }
+  }, [addCustomTag, customTagInput])
+
+  const handleAddCustomClick = useCallback(() => {
+    setShowCustomInput(true)
+  }, [])
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
+  const handleCustomInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomTagInput(e.target.value)
+  }, [])
+
+  const handleCustomInputBlur = useCallback(() => {
+    if (!customTagInput.trim()) {
+      setShowCustomInput(false)
+    }
+  }, [customTagInput])
+
+  // Memoize filtered tags to prevent recalculation on every render
+  const filteredTags = useMemo(() => 
+    DEFAULT_TAGS.filter(tag => 
+      !selectedTags.includes(tag) && 
+      tag.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+  [selectedTags, searchQuery])
+
+  // Focus the input when custom tag input is shown with proper cleanup
+  useEffect(() => {
+    if (showCustomInput && inputRef.current) {
+      inputRef.current.focus()
+    }
+    
+    // Cleanup function for useEffect
+    return () => {
+      // Any cleanup needed
+    }
+  }, [showCustomInput])
 
   return (
-    <div className="space-y-2">
-      <Label>Component Tags</Label>
-      <div className="flex flex-wrap gap-2 mb-2">
-        {selectedTags.map((tag) => (
-          <Badge
-            key={tag}
-            variant="secondary"
-            className="flex items-center gap-1 px-2 py-1"
-          >
-            <Tag className="h-3 w-3" />
-            {tag}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-4 w-4 p-0 hover:bg-transparent"
-              onClick={() => handleRemoveTag(tag)}
-            >
-              <X className="h-3 w-3" />
-              <span className="sr-only">Remove tag</span>
-            </Button>
-          </Badge>
-        ))}
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label htmlFor="tag-search" className="text-sm font-medium">Component Tags</Label>
+        <div className="relative w-1/2">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            id="tag-search"
+            type="text"
+            placeholder="Search tags..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="pl-9 h-8 text-sm"
+          />
+        </div>
       </div>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between bg-background hover:bg-accent/50"
-          >
-            <span className="text-muted-foreground">
-              {selectedTags.length > 0 
-                ? `${selectedTags.length} tag${selectedTags.length > 1 ? 's' : ''} selected` 
-                : "Select or add tags..."}
-            </span>
-            <ChevronsUpDown className="h-4 w-4 opacity-50 shrink-0" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
-          <Command onKeyDown={handleKeyDown}>
-            <CommandInput 
-              placeholder="Search or add a custom tag..." 
-              value={inputValue}
-              onValueChange={setInputValue}
-            />
-            {inputValue && !defaultTags.some(tag => tag.value === inputValue.toLowerCase()) && (
-              <CommandList>
-                <CommandGroup heading="Add Custom Tag">
-                  <CommandItem
-                    value={inputValue}
-                    onSelect={() => {
-                      handleAddCustomTag()
-                      setOpen(false)
-                    }}
-                    className="flex items-center gap-2 text-muted-foreground"
-                  >
-                    <PlusCircle className="h-4 w-4" />
-                    <span>Add &quot;{inputValue}&quot;</span>
-                  </CommandItem>
-                </CommandGroup>
-                <CommandSeparator />
-              </CommandList>
+
+      <div 
+        ref={tagContainerRef}
+        className="flex flex-wrap gap-2 max-h-[180px] overflow-y-auto rounded-md border border-input bg-background p-2"
+      >
+        {/* Selected Tags */}
+        {selectedTags.map((tag) => (
+          <motion.div
+            key={tag}
+            layoutId={`tag-${tag}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.8 }}
+            transition={{...TRANSITION_PROPS, layout: { duration: 0.15 }}}
+            className={cn(
+              "inline-flex items-center px-3 py-1 rounded-full text-sm font-medium",
+              "select-none cursor-pointer whitespace-nowrap overflow-hidden",
+              "bg-primary/10 text-primary ring-1 ring-primary/20 hover:bg-primary/15"
             )}
-            <CommandList>
-              <CommandEmpty>No tags found.</CommandEmpty>
-              <CommandGroup heading="Popular Tags">
-                {defaultTags.map((tag) => (
-                  <CommandItem
-                    key={tag.value}
-                    value={tag.value}
-                    onSelect={() => handleSelect(tag.value)}
-                    className="flex items-center gap-2"
-                  >
-                    <div className="flex h-4 w-4 items-center justify-center">
-                      {selectedTags.includes(tag.value) && <Check className="h-3 w-3" />}
-                    </div>
-                    <span>{tag.label}</span>
-                  </CommandItem>
-                ))}
-              </CommandGroup>
-            </CommandList>
-          </Command>
-        </PopoverContent>
-      </Popover>
-      <p className="text-xs text-muted-foreground">
-        Select from common tags or type to create your own
-      </p>
+            onClick={() => toggleTag(tag)}
+          >
+            <span>{tag}</span>
+            <X className="h-3 w-3 ml-1.5 opacity-70" />
+          </motion.div>
+        ))}
+
+        {/* Custom Tag Input */}
+        <AnimatePresence>
+          {showCustomInput && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: "auto", opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center"
+            >
+              <Input
+                id="custom-tag-input"
+                ref={inputRef}
+                value={customTagInput}
+                onChange={handleCustomInputChange}
+                onKeyDown={handleKeyPress}
+                onBlur={handleCustomInputBlur}
+                className="h-8 min-w-[150px] text-sm"
+                placeholder="Add custom tag..."
+              />
+              <Button 
+                type="button"
+                size="sm"
+                variant="ghost"
+                onClick={addCustomTag}
+                className="ml-1 h-8 w-8 p-0"
+                disabled={!customTagInput.trim()}
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span className="sr-only">Add tag</span>
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Add Custom Tag Button */}
+        {!showCustomInput && (
+          <motion.button
+            type="button"
+            onClick={handleAddCustomClick}
+            layout
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm",
+              "bg-muted/50 text-muted-foreground hover:bg-muted",
+              "ring-1 ring-muted/50 cursor-pointer select-none"
+            )}
+          >
+            <PlusCircle className="h-3.5 w-3.5" />
+            <span>Custom</span>
+          </motion.button>
+        )}
+      </div>
+
+      {/* Available Tags */}
+      <div className="mt-2">
+        <Label className="text-xs text-muted-foreground mb-2 inline-block">
+          Available Tags
+        </Label>
+        <motion.div 
+          className="flex flex-wrap gap-2"
+          layoutScroll
+        >
+          {filteredTags.length > 0 ? (
+            filteredTags.map((tag) => (
+              <motion.button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                layoutId={`tag-${tag}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{...TRANSITION_PROPS, layout: { duration: 0.15 }}}
+                className={cn(
+                  "inline-flex items-center px-3 py-1 rounded-full text-sm",
+                  "bg-secondary/50 text-secondary-foreground hover:bg-secondary/80",
+                  "ring-1 ring-secondary/30 cursor-pointer select-none"
+                )}
+              >
+                {tag}
+              </motion.button>
+            ))
+          ) : (
+            <div className="h-8 flex items-center">
+              <span className="text-sm text-muted-foreground">
+                {searchQuery 
+                  ? "No matching tags found. Use the Custom button to create a new tag." 
+                  : "All available tags have been selected."}
+              </span>
+            </div>
+          )}
+        </motion.div>
+      </div>
     </div>
   );
-}
+})
+
+// Add display name for better debugging
+TagSelector.displayName = "TagSelector"
+
+export { TagSelector }
