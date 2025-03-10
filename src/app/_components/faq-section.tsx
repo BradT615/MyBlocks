@@ -1,4 +1,3 @@
-// src/components/faq-section.tsx
 "use client"
 
 import { faqData } from "@/data/faq-data"
@@ -18,32 +17,32 @@ function FAQItem({ question, answer, isOpen, onClick }: FAQItemProps) {
     <div 
       className={cn(
         "rounded-xl overflow-hidden border transition-all duration-300",
-        "bg-card shadow-sm hover:shadow-md cursor-pointer",
+        "bg-card shadow-sm hover:shadow-md",
         isOpen ? "border-primary/20" : "border-border"
       )}
-      onClick={onClick}
     >
-      <div className="p-6">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-medium text-card-foreground/90">
-            {question}
-          </h3>
-          <div className="flex items-center justify-center w-6 h-6">
-            <ChevronDown className={cn(
-              "h-5 w-5 text-muted-foreground transition-transform duration-300",
-              isOpen && "rotate-180"
-            )} />
-          </div>
+      <div 
+        className="p-6 flex justify-between items-center cursor-pointer" 
+        onClick={onClick}
+      >
+        <h3 className="text-lg font-medium text-card-foreground/90">
+          {question}
+        </h3>
+        <div className="flex items-center justify-center w-6 h-6">
+          <ChevronDown className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform duration-300",
+            isOpen && "rotate-180"
+          )} />
         </div>
-        <div className={cn(
-          "grid transition-all duration-300 ease-in-out",
-          isOpen ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
-        )}>
-          <div className="overflow-hidden">
-            <p className="text-muted-foreground">
-              {answer}
-            </p>
-          </div>
+      </div>
+      <div className={cn(
+        "grid transition-all duration-300 ease-in-out px-6",
+        isOpen ? "grid-rows-[1fr] opacity-100 pb-6" : "grid-rows-[0fr] opacity-0 pb-0"
+      )}>
+        <div className="overflow-hidden">
+          <p className="text-muted-foreground">
+            {answer}
+          </p>
         </div>
       </div>
     </div>
