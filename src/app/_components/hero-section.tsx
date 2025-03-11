@@ -72,7 +72,7 @@ const CodeMock = () => (
 
 export function HeroSection() {
   return (
-    <section className="pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden border">
+    <section className="pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden">
       <div className="max-w-[70vw] mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="">

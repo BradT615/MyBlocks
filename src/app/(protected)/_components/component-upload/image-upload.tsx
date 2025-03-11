@@ -1,6 +1,6 @@
-// src/app/(protected)/_components/component-upload/image-upload.tsx
+// Update this section in src/app/(protected)/_components/component-upload/image-upload.tsx
 import Image from "next/image"
-import { Upload, X } from 'lucide-react'
+import { Upload, X, Wand2 } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
@@ -24,7 +24,7 @@ export function ImageUpload({
 }: ImageUploadProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="previewImage">Preview Image (optional)</Label>
+      <Label htmlFor="previewImage">Preview Image</Label>
       <div 
         className={cn(
           "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
@@ -68,10 +68,11 @@ export function ImageUpload({
         ) : (
           <>
             <div className="flex items-center justify-center">
+              <Wand2 className="h-6 w-6 text-primary/80 mr-2" />
               <Upload className="h-6 w-6 text-muted-foreground/80" />
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
-              Drag and drop an image, or click to browse
+              A preview will be generated automatically, or you can upload a custom one
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
               PNG, JPG or WebP up to 2MB

@@ -11,6 +11,13 @@ interface ComponentFile {
   filename: string
 }
 
+// Helper function to convert base64 to Blob
+async function base64ToFile(base64String: string, filename: string): Promise<File> {
+  const res = await fetch(`data:image/png;base64,${base64String}`);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: 'image/png' });
+}
+
 export async function createComponent(formData: FormData) {
   const supabase = await createClient()
   
@@ -61,6 +68,102 @@ export async function createComponent(formData: FormData) {
       error: 'You already have a component with this name. Please use a different name.' 
     }
   }
+
+  // Generate preview image if not provided manually
+  let preview_image_url = null;
+  
+  try {
+    if (previewImage && previewImage.size > 0) {
+      // User provided a preview image, use it
+      // Check file size (2MB limit)
+      if (previewImage.size > 2 * 1024 * 1024) {
+        return { error: 'Image file size should be less than 2MB' }
+      }
+      
+      // Upload to Supabase Storage
+      const fileName = `${user.id}/${Date.now()}-${previewImage.name}`
+      const { data: uploadData, error: uploadError } = await supabase
+        .storage
+        .from('component-previews')
+        .upload(fileName, previewImage, {
+          cacheControl: '3600',
+          upsert: false
+        })
+      
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError)
+        // Continue without preview if upload fails
+      } else {
+        // Get public URL for the uploaded image
+        const { data: { publicUrl } } = supabase
+          .storage
+          .from('component-previews')
+          .getPublicUrl(uploadData.path)
+        
+        preview_image_url = publicUrl
+      }
+    } else {
+      // Auto-generate preview image
+      console.log('Generating preview image automatically...')
+      const primaryFile = files[0]
+      
+      // Call our screenshot API
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/generate-preview`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          componentCode: primaryFile.code,
+          language: primaryFile.language,
+          theme: 'light' // Default to light theme
+        }),
+      })
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        if (result.success && result.image) {
+          // Create a file from the base64 image
+          const imageFile = await base64ToFile(
+            result.image, 
+            `${name.replace(/\s+/g, '-').toLowerCase()}-preview.png`
+          )
+          
+          // Upload to Supabase Storage
+          const fileName = `${user.id}/${Date.now()}-preview.png`
+          const { data: uploadData, error: uploadError } = await supabase
+            .storage
+            .from('component-previews')
+            .upload(fileName, imageFile, {
+              cacheControl: '3600',
+              upsert: false,
+              contentType: 'image/png'
+            })
+          
+          if (uploadError) {
+            console.error('Error uploading generated preview:', uploadError)
+            // Continue without preview if upload fails
+          } else {
+            // Get public URL for the uploaded image
+            const { data: { publicUrl } } = supabase
+              .storage
+              .from('component-previews')
+              .getPublicUrl(uploadData.path)
+            
+            preview_image_url = publicUrl
+          }
+        } else {
+          console.log('Preview generation did not return a valid image')
+        }
+      } else {
+        console.error('Error generating preview:', await response.text())
+      }
+    }
+  } catch (error) {
+    console.error('Error handling preview image:', error)
+    // Continue without preview image if there's an error
+  }
   
   // Prepare the component data - we'll use the first file's language as the primary language
   const componentData: {
@@ -80,38 +183,6 @@ export async function createComponent(formData: FormData) {
     is_public: isPublic,
     owner_id: user.id,
     utilities: utilities.length > 0 ? utilities.join(',') : null
-  }
-  
-  // Handle image upload if provided
-  let preview_image_url = null
-  if (previewImage && previewImage.size > 0) {
-    // Check file size (2MB limit)
-    if (previewImage.size > 2 * 1024 * 1024) {
-      return { error: 'Image file size should be less than 2MB' }
-    }
-    
-    // Upload to Supabase Storage
-    const fileName = `${user.id}/${Date.now()}-${previewImage.name}`
-    const { data: uploadData, error: uploadError } = await supabase
-      .storage
-      .from('component-previews')
-      .upload(fileName, previewImage, {
-        cacheControl: '3600',
-        upsert: false
-      })
-    
-    if (uploadError) {
-      console.error('Error uploading image:', uploadError)
-      return { error: 'Failed to upload preview image' }
-    }
-    
-    // Get public URL for the uploaded image
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from('component-previews')
-      .getPublicUrl(uploadData.path)
-    
-    preview_image_url = publicUrl
   }
   
   // Add preview image URL if available
@@ -153,13 +224,16 @@ export async function createComponent(formData: FormData) {
   
   // Handle tags if provided
   if (tagsString && tagsString.trim() !== '') {
-    const tagNames = tagsString
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag !== '')
+    let tagsList: string[] = [];
+    try {
+      tagsList = JSON.parse(tagsString);
+    } catch (e) {
+      // If parsing fails, try to handle it as a comma-separated string
+      tagsList = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
+    }
     
     // Process each tag
-    for (const tagName of tagNames) {
+    for (const tagName of tagsList) {
       // Check if tag already exists
       const { data: existingTag } = await supabase
         .from('tags')
