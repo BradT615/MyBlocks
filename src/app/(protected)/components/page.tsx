@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header';
@@ -27,73 +27,10 @@ import {
   Upload,
   Code,
   Eye,
-  Lock
+  Lock,
+  Loader2
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-
-// Mock data for the initial state
-// In a real app, this would come from your Supabase backend
-const mockComponents = [
-  { 
-    id: 'button-1', 
-    name: 'Primary Button', 
-    description: 'A customizable primary button component with variants',
-    updatedAt: '2 days ago', 
-    tags: ['ui', 'button', 'interactive'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: true
-  },
-  { 
-    id: 'dropdown-1', 
-    name: 'Dropdown Menu', 
-    description: 'Accessible dropdown menu with keyboard navigation',
-    updatedAt: '5 days ago', 
-    tags: ['ui', 'menu', 'navigation'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: true
-  },
-  { 
-    id: 'card-1', 
-    name: 'Gradient Card', 
-    description: 'Card component with customizable gradient background',
-    updatedAt: '1 week ago', 
-    tags: ['ui', 'card', 'layout'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: false
-  },
-  { 
-    id: 'navbar-1', 
-    name: 'Responsive Navbar', 
-    description: 'Fully responsive navigation bar with mobile menu',
-    updatedAt: '2 weeks ago', 
-    tags: ['layout', 'navigation', 'responsive'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: true
-  },
-  { 
-    id: 'form-1', 
-    name: 'Sign Up Form', 
-    description: 'Validated sign up form with error handling',
-    updatedAt: '3 weeks ago', 
-    tags: ['ui', 'form', 'validation'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: false
-  },
-  { 
-    id: 'modal-1', 
-    name: 'Modal Dialog', 
-    description: 'Accessible modal dialog with focus trapping',
-    updatedAt: '1 month ago', 
-    tags: ['ui', 'modal', 'accessibility'],
-    previewImgUrl: '/api/placeholder/400/300',
-    isPublic: true
-  },
-];
-
-// All unique tags from components
-const allTags = Array.from(new Set(
-  mockComponents.flatMap(component => component.tags)
-));
+import { createClient } from '@/utils/supabase/client';
 
 export default function ComponentsGallery() {
   const router = useRouter();
@@ -103,18 +40,108 @@ export default function ComponentsGallery() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentTab, setCurrentTab] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
-  const [isDragging, setIsDragging] = useState(false);
-  
-  // For a real application, you would fetch components from your API/database
-  // This static data is just for demonstration purposes
-  const components = mockComponents;
-  
+  // Add state for real components data
+  const [components, setComponents] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [allTags, setAllTags] = useState<string[]>([]);
+
+  // Fetch components on mount
+  useEffect(() => {
+    async function fetchComponents() {
+      setIsLoading(true);
+      try {
+        const supabase = createClient();
+        
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          throw new Error('User not authenticated');
+        }
+        
+        // Fetch components that are either public or owned by the user
+        const { data: componentsData, error: componentsError } = await supabase
+          .from("components")
+          .select(`
+            *,
+            profiles(full_name, avatar_url),
+            component_tags(tags(name))
+          `)
+          .or(`profile_id.eq.${user.id},is_public.eq.true`)
+          .order('created_at', { ascending: false });
+        
+        if (componentsError) {
+          throw componentsError;
+        }
+        
+        // Transform the data to match the expected format
+        const transformedComponents = componentsData.map(component => {
+          // Extract tags from the component_tags relation
+          const tags = component.component_tags
+            ?.filter((ct: { tags: any }) => ct.tags)
+            .map((ct: { tags: { name: string } }) => ct.tags.name) || [];
+          
+          return {
+            id: component.id,
+            name: component.name,
+            description: component.description || '',
+            updatedAt: formatRelativeTime(component.updated_at),
+            tags: tags,
+            previewImgUrl: component.preview_image_url || '/api/placeholder/400/300',
+            isPublic: component.is_public
+          };
+        });
+        
+        // Extract all unique tags for filtering
+        const allTagValues = Array.from(new Set(
+          transformedComponents.flatMap(component => component.tags)
+        ));
+        
+        setComponents(transformedComponents);
+        setAllTags(allTagValues);
+        setError(null);
+      } catch (err) {
+        console.error('Error fetching components:', err);
+        setError('Failed to load components. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    
+    fetchComponents();
+  }, []);
+
+  // Helper function to format relative time
+  function formatRelativeTime(timestamp: string) {
+    if (!timestamp) return 'Unknown time';
+    
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    
+    if (diffInDays === 0) {
+      const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+      if (diffInHours === 0) {
+        const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+        return `${diffInMinutes} minutes ago`;
+      }
+      return `${diffInHours} hours ago`;
+    }
+    if (diffInDays === 1) return 'yesterday';
+    if (diffInDays < 7) return `${diffInDays} days ago`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} weeks ago`;
+    if (diffInDays < 365) return `${Math.floor(diffInDays / 30)} months ago`;
+    return `${Math.floor(diffInDays / 365)} years ago`;
+  }
+
   // Filter components based on search, selected tags, and current tab
   const filteredComponents = components.filter(component => {
     const matchesSearch = searchQuery === '' || 
       component.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       component.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      component.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      component.tags.some((tag: string) => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesTags = selectedTags.length === 0 || 
       selectedTags.every(tag => component.tags.includes(tag));
@@ -131,11 +158,9 @@ export default function ComponentsGallery() {
   const sortedComponents = [...filteredComponents].sort((a, b) => {
     switch (sortOrder) {
       case 'newest':
-        // This is just a mock - in real app, compare actual dates
-        return -1; // Newest first
+        return a.updatedAt.includes('minute') ? -1 : (a.updatedAt.includes('hour') ? -1 : 1);
       case 'oldest':
-        // This is just a mock - in real app, compare actual dates
-        return 1; // Oldest first
+        return a.updatedAt.includes('minute') ? 1 : (a.updatedAt.includes('hour') ? 1 : -1);
       case 'name-asc':
         return a.name.localeCompare(b.name);
       case 'name-desc':
@@ -159,36 +184,7 @@ export default function ComponentsGallery() {
     router.push(`/components/${id}`);
   };
 
-  // Handle drag events for the drop zone
-  const handleDragEnter = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
 
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
-    
-    // Check if files were dropped
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Open the upload modal with the dropped files
-      setIsModalOpen(true);
-      // In a real implementation, you would pass the files to the modal component
-    }
-  };
 
   // Empty state component for when no components match filters
   const EmptyState = () => (
@@ -212,45 +208,71 @@ export default function ComponentsGallery() {
     </div>
   );
 
-  // Drag and drop zone component (shown when there are no components)
-  const DragDropZone = () => (
-    <div 
-      className={cn(
-        "rounded-xl border-2 border-dashed p-12 text-center transition-all cursor-pointer mt-8",
-        isDragging 
-          ? "border-primary bg-primary/5" 
-          : "border-border/50 hover:border-primary/50 hover:bg-primary/5"
-      )}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      onClick={() => setIsModalOpen(true)}
-    >
+  // EmptyLibrary component (shown when there are no components)
+  const EmptyLibrary = () => (
+    <div className="rounded-xl border p-12 text-center mt-8 bg-muted/10">
       <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 mb-6">
         <Upload className="h-10 w-10 text-primary/80" />
       </div>
-      <h3 className="text-xl font-semibold mb-3">Drag & Drop Your Components</h3>
+      <h3 className="text-xl font-semibold mb-3">Your Component Library is Empty</h3>
       <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-        Drop your component files here or click to browse
+        Get started by adding your first component
       </p>
       <Button 
         className="flex items-center gap-2"
-        onClick={(e) => {
-          e.stopPropagation();
-          setIsModalOpen(true);
-        }}
+        onClick={() => setIsModalOpen(true)}
       >
         <PlusCircle className="h-4 w-4" />
-        <span>Upload Component</span>
+        <span>Add Component</span>
       </Button>
     </div>
   );
 
-  // Card component for grid view
-  const ComponentCard = ({ component }: { component: typeof mockComponents[0] }) => (
+  // Loading state
+  const LoadingState = () => (
+    <div className="w-full flex items-center justify-center py-12">
+      <div className="flex flex-col items-center">
+        <Loader2 className="w-12 h-12 text-primary animate-spin mb-4" />
+        <p className="text-muted-foreground">Loading components...</p>
+      </div>
+    </div>
+  );
+
+  // Add component card (for grid view)
+  const AddComponentCard = () => (
     <Card 
-      key={component.id}
+      onClick={() => setIsModalOpen(true)}
+      className="overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-primary/20 group flex flex-col justify-center items-center p-8 bg-muted/10"
+    >
+      <div className="rounded-full bg-primary/10 p-4 mb-4">
+        <PlusCircle className="h-8 w-8 text-primary" />
+      </div>
+      <h3 className="font-medium text-center mb-2">Add New Component</h3>
+      <p className="text-xs text-muted-foreground text-center max-w-[200px]">
+        Click to add a component to your library
+      </p>
+    </Card>
+  );
+
+  // Add component list item (for list view)
+  const AddComponentListItem = () => (
+    <div 
+      className="rounded-lg border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 cursor-pointer p-4 flex items-center bg-muted/10"
+      onClick={() => setIsModalOpen(true)}
+    >
+      <div className="h-12 w-12 bg-primary/10 rounded-md mr-4 flex items-center justify-center">
+        <PlusCircle className="h-6 w-6 text-primary" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium">Add New Component</h3>
+        <p className="text-xs text-muted-foreground">Click to add a component to your library</p>
+      </div>
+    </div>
+  );
+
+  // Card component for grid view
+  const ComponentCard = ({ component }: { component: any }) => (
+    <Card 
       className="overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-primary/20 group"
       onClick={() => handleOpenComponent(component.id)}
     >
@@ -287,7 +309,7 @@ export default function ComponentsGallery() {
         </div>
         
         <div className="flex mt-3 gap-1 flex-wrap">
-          {component.tags.slice(0, 3).map(tag => (
+          {component.tags.slice(0, 3).map((tag: string) => (
             <span 
               key={tag} 
               className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs"
@@ -311,9 +333,8 @@ export default function ComponentsGallery() {
   );
 
   // List item component for list view
-  const ComponentListItem = ({ component }: { component: typeof mockComponents[0] }) => (
+  const ComponentListItem = ({ component }: { component: any }) => (
     <div 
-      key={component.id}
       className="rounded-lg border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 cursor-pointer p-4 flex items-center"
       onClick={() => handleOpenComponent(component.id)}
     >
@@ -340,7 +361,7 @@ export default function ComponentsGallery() {
         <p className="text-xs text-muted-foreground truncate">{component.description}</p>
       </div>
       <div className="flex gap-1 flex-wrap justify-end ml-4">
-        {component.tags.slice(0, 2).map(tag => (
+        {component.tags.slice(0, 2).map((tag: string) => (
           <span 
             key={tag} 
             className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs"
@@ -448,17 +469,19 @@ export default function ComponentsGallery() {
                   <SelectItem value="name-desc">Name (Z-A)</SelectItem>
                 </SelectContent>
               </Select>
-              <Select onValueChange={(value) => toggleTag(value)}>
-                <SelectTrigger className="w-40 flex items-center gap-1">
-                  <Filter className="h-4 w-4 text-muted-foreground" />
-                  <SelectValue placeholder="Filter by tag" />
-                </SelectTrigger>
-                <SelectContent>
-                  {allTags.map(tag => (
-                    <SelectItem key={tag} value={tag}>{tag}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {allTags.length > 0 && (
+                <Select onValueChange={(value) => toggleTag(value)}>
+                  <SelectTrigger className="w-40 flex items-center gap-1">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Filter by tag" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {allTags.map(tag => (
+                      <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 
@@ -492,8 +515,10 @@ export default function ComponentsGallery() {
           )}
 
           <TabsContent value="all" className="mt-0">
-            {components.length === 0 ? (
-              <DragDropZone />
+            {isLoading ? (
+              <LoadingState />
+            ) : components.length === 0 ? (
+              <EmptyLibrary />
             ) : sortedComponents.length === 0 ? (
               <EmptyState />
             ) : viewMode === 'grid' ? (
@@ -501,50 +526,58 @@ export default function ComponentsGallery() {
                 {sortedComponents.map(component => (
                   <ComponentCard key={component.id} component={component} />
                 ))}
+                <AddComponentCard />
               </div>
             ) : (
               <div className="space-y-2">
                 {sortedComponents.map(component => (
                   <ComponentListItem key={component.id} component={component} />
                 ))}
+                <AddComponentListItem />
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="public">
-            {/* Similar content as 'all' but filtered for public components */}
-            {sortedComponents.length === 0 ? (
+            {isLoading ? (
+              <LoadingState />
+            ) : sortedComponents.length === 0 ? (
               <EmptyState />
             ) : viewMode === 'grid' ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sortedComponents.map(component => (
                   <ComponentCard key={component.id} component={component} />
                 ))}
+                <AddComponentCard />
               </div>
             ) : (
               <div className="space-y-2">
                 {sortedComponents.map(component => (
                   <ComponentListItem key={component.id} component={component} />
                 ))}
+                <AddComponentListItem />
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="private">
-            {/* Similar content as 'all' but filtered for private components */}
-            {sortedComponents.length === 0 ? (
+            {isLoading ? (
+              <LoadingState />
+            ) : sortedComponents.length === 0 ? (
               <EmptyState />
             ) : viewMode === 'grid' ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sortedComponents.map(component => (
                   <ComponentCard key={component.id} component={component} />
                 ))}
+                <AddComponentCard />
               </div>
             ) : (
               <div className="space-y-2">
                 {sortedComponents.map(component => (
                   <ComponentListItem key={component.id} component={component} />
                 ))}
+                <AddComponentListItem />
               </div>
             )}
           </TabsContent>
