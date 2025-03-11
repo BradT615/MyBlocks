@@ -32,6 +32,40 @@ import {
 } from 'lucide-react';
 import { createClient } from '@/utils/supabase/client';
 
+// Define types for component data
+interface ComponentTag {
+  tags?: {
+    name: string;
+  };
+}
+
+interface ComponentProfile {
+  full_name?: string;
+  avatar_url?: string;
+}
+
+interface Component {
+  id: string;
+  name: string;
+  description: string;
+  updated_at: string;
+  is_public: boolean;
+  profile_id: string;
+  preview_image_url?: string;
+  component_tags?: ComponentTag[];
+  profiles?: ComponentProfile;
+}
+
+interface TransformedComponent {
+  id: string;
+  name: string;
+  description: string;
+  updatedAt: string;
+  tags: string[];
+  previewImgUrl: string;
+  isPublic: boolean;
+}
+
 export default function ComponentsGallery() {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,9 +75,9 @@ export default function ComponentsGallery() {
   const [currentTab, setCurrentTab] = useState('all');
   const [sortOrder, setSortOrder] = useState('newest');
   // Add state for real components data
-  const [components, setComponents] = useState<any[]>([]);
+  const [components, setComponents] = useState<TransformedComponent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [allTags, setAllTags] = useState<string[]>([]);
 
   // Fetch components on mount
@@ -68,19 +102,24 @@ export default function ComponentsGallery() {
             profiles(full_name, avatar_url),
             component_tags(tags(name))
           `)
-          .or(`profile_id.eq.${user.id},is_public.eq.true`)
-          .order('created_at', { ascending: false });
+          .or(`profile_id.eq.${user.id},is_public.eq.true`);
         
         if (componentsError) {
           throw componentsError;
         }
         
+        if (!componentsData) {
+          setComponents([]);
+          return;
+        }
+
         // Transform the data to match the expected format
-        const transformedComponents = componentsData.map(component => {
+        const transformedComponents = componentsData.map((component: Component) => {
           // Extract tags from the component_tags relation
           const tags = component.component_tags
-            ?.filter((ct: { tags: any }) => ct.tags)
-            .map((ct: { tags: { name: string } }) => ct.tags.name) || [];
+            ?.filter((ct) => ct.tags)
+            .map((ct) => ct.tags?.name)
+            .filter((name): name is string => typeof name === 'string') || [];
           
           return {
             id: component.id,
@@ -100,10 +139,10 @@ export default function ComponentsGallery() {
         
         setComponents(transformedComponents);
         setAllTags(allTagValues);
-        setError(null);
+        setErrorMessage(null);
       } catch (err) {
         console.error('Error fetching components:', err);
-        setError('Failed to load components. Please try again later.');
+        setErrorMessage('Failed to load components. Please try again later.');
       } finally {
         setIsLoading(false);
       }
@@ -271,7 +310,7 @@ export default function ComponentsGallery() {
   );
 
   // Card component for grid view
-  const ComponentCard = ({ component }: { component: any }) => (
+  const ComponentCard = ({ component }: { component: TransformedComponent }) => (
     <Card 
       className="overflow-hidden cursor-pointer transition-all hover:shadow-md hover:border-primary/20 group"
       onClick={() => handleOpenComponent(component.id)}
@@ -333,7 +372,7 @@ export default function ComponentsGallery() {
   );
 
   // List item component for list view
-  const ComponentListItem = ({ component }: { component: any }) => (
+  const ComponentListItem = ({ component }: { component: TransformedComponent }) => (
     <div 
       className="rounded-lg border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 cursor-pointer p-4 flex items-center"
       onClick={() => handleOpenComponent(component.id)}
@@ -520,7 +559,17 @@ export default function ComponentsGallery() {
             ) : components.length === 0 ? (
               <EmptyLibrary />
             ) : sortedComponents.length === 0 ? (
-              <EmptyState />
+              errorMessage ? (
+                <div className="rounded-xl border bg-card shadow-sm p-8 text-center">
+                  <h3 className="text-xl font-semibold mb-3">Error Loading Components</h3>
+                  <p className="text-muted-foreground mb-4">{errorMessage}</p>
+                  <Button onClick={() => window.location.reload()}>
+                    Try Again
+                  </Button>
+                </div>
+              ) : (
+                <EmptyState />
+              )
             ) : viewMode === 'grid' ? (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {sortedComponents.map(component => (
@@ -541,6 +590,22 @@ export default function ComponentsGallery() {
           <TabsContent value="public">
             {isLoading ? (
               <LoadingState />
+            ) : errorMessage ? (
+              <div className="rounded-xl border bg-card shadow-sm p-8 text-center">
+                <h3 className="text-xl font-semibold mb-3">Error Loading Components</h3>
+                <p className="text-muted-foreground mb-4">{errorMessage}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Try Again
+                </Button>
+              </div>
+            ) : errorMessage ? (
+              <div className="rounded-xl border bg-card shadow-sm p-8 text-center">
+                <h3 className="text-xl font-semibold mb-3">Error Loading Components</h3>
+                <p className="text-muted-foreground mb-4">{errorMessage}</p>
+                <Button onClick={() => window.location.reload()}>
+                  Try Again
+                </Button>
+              </div>
             ) : sortedComponents.length === 0 ? (
               <EmptyState />
             ) : viewMode === 'grid' ? (
