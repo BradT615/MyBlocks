@@ -1,7 +1,7 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import { AlertCircle, Upload, CheckCircle, Code, Info, Palette, Loader2, HelpCircle } from 'lucide-react'
+import { AlertCircle, CheckCircle, Code, Info, Palette, Loader2, HelpCircle } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useComponentForm } from './use-component-form'
 import { BasicFormSections } from './form-sections'
 import { UtilitiesSelector } from './utilities-selector'
-import { ImageUpload } from './image-upload'
 import { TagSelector } from './tag-selector'
 import { TabbedFileList } from './tabbed-file-list'
 import { 
@@ -379,31 +378,6 @@ export function ComponentUploadModal({
                                 <p>Preview feature coming soon!</p>
                                 <p className="text-sm">You&apos;ll be able to see how your component renders here.</p>
                               </div>
-                            </div>
-                          </motion.div>
-                          
-                          {/* Image upload section */}
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{...SPRING_TRANSITION, delay: 0.2}}
-                            className="border rounded-lg overflow-hidden"
-                          >
-                            <div className="bg-muted/40 p-4 border-b">
-                              <h3 className="font-medium flex items-center gap-2">
-                                <Upload className="h-4 w-4 text-primary" />
-                                Preview Image (Optional)
-                              </h3>
-                            </div>
-                            <div className="p-4">
-                              <ImageUpload
-                                selectedFile={selectedFile}
-                                fileInputRef={fileInputRef as React.RefObject<HTMLInputElement>}
-                                dragActive={dragActive}
-                                onFileChange={handleFileChange}
-                                onDrag={handleDrag}
-                                onDrop={handleDrop}
-                              />
                             </div>
                           </motion.div>
                           
