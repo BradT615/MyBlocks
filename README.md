@@ -34,28 +34,120 @@ The platform solves collaboration challenges between design and development team
 ### Deployment
 - **Vercel**: Hosting and deployment platform
 
-## Database Schema
+# Database Architecture - MyBlocks
 
-The simplified database schema consists of the following main tables:
+## Overview
 
-### components
-- **id** (uuid, primary key)
-- **name** (text)
-- **description** (text)
-- **code** (text)
-- **language** (text)
-- **is_public** (boolean)
-- **owner_id** (uuid, foreign key to auth.users.id)
-- **created_at** (timestamptz)
+MyBlocks uses a Supabase PostgreSQL database with a profile-based architecture to create a clean separation between authentication and application data. This design provides better security, maintainability, and extensibility.
 
-### tags
-- **id** (uuid, primary key)
-- **name** (text, unique)
+## Schema Design
 
-### component_tags (junction table)
-- **component_id** (uuid, foreign key to components.id)
-- **tag_id** (uuid, foreign key to tags.id)
-- **primary key** (component_id, tag_id)
+The database is organized around these main entities:
+
+### Authentication & User Management
+
+- **auth.users**: Managed by Supabase Auth - contains credentials and basic user info
+- **profiles**: Bridge table connecting auth.users to application data
+  - Contains user profile information (name, avatar, etc.)
+  - Created automatically when a user registers
+
+### Component Management
+
+- **components**: Core table for UI components
+  - Connected to profiles via profile_id
+  - Contains main component code and metadata
+  - Has privacy controls (is_public flag)
+
+- **component_files**: Additional files for components
+  - Allows multi-file components
+  - Connected to components via component_id
+
+### Organization
+
+- **tags**: Reusable labels for components
+  - Global tag repository shared across users
+
+- **component_tags**: Junction table connecting components to tags
+  - Allows many-to-many relationship
+
+- **collections**: Groups of related components
+  - Personal collections owned by users (via profile_id)
+  - Contains metadata like name, description
+
+- **collection_components**: Junction table for collections and components
+  - Allows many-to-many relationship
+
+## Relationship Diagram
+
+```
+auth.users (Supabase Auth)
+      ↓
+   profiles
+ ↙        ↘
+components  collections
+↙  ↓      ↘     ↓
+|  |       |    |
+↓  ↓       ↓    ↓
+component_files  collection_components
+                ↑
+component_tags ↗
+      ↑
+     tags
+```
+
+## Security Model
+
+### Row-Level Security Policies
+
+Row-level security (RLS) policies ensure:
+
+1. Users can only see their own profiles
+2. Users can see either:
+   - Their own components
+   - Public components shared by others
+3. Users can only modify their own data
+4. Tags are globally visible but components using them remain private
+
+### Functions & Triggers
+
+- **handle_new_user()**: Automatically creates a profile when a user registers
+- **handle_profile_update()**: Synchronizes profile updates back to auth.users metadata
+- **update_updated_at_column()**: Keeps last-modified timestamps current
+
+## Implementation Notes
+
+### User Registration Flow
+
+1. User registers via Supabase Auth
+2. `on_auth_user_created` trigger fires
+3. `handle_new_user()` function creates a profile record
+4. Application uses profile_id throughout
+
+### Component Creation Flow
+
+1. Component is created with reference to profile_id (same as user's auth.id)
+2. RLS policies automatically apply to restrict access
+3. Additional files can be added via component_files table
+4. Components can be tagged and organized into collections
+
+### Query Pattern Examples
+
+```sql
+-- Get user's own components
+SELECT * FROM components WHERE profile_id = auth.uid();
+
+-- Get public components
+SELECT * FROM components WHERE is_public = true;
+
+-- Get component with creator info
+SELECT 
+  c.*,
+  p.full_name as creator_name,
+  p.avatar_url as creator_avatar
+FROM components c
+JOIN profiles p ON c.profile_id = p.id
+WHERE c.id = 'component-id';
+```
 
 ## MyBlocks MVP Features
 
