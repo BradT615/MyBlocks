@@ -116,7 +116,7 @@ interface AddComponentListItemProps {
 function AddComponentListItem({ onAddComponent }: AddComponentListItemProps) {
   return (
     <div 
-      className="rounded-lg border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 cursor-pointer p-4 flex items-center bg-muted/10"
+      className="rounded-lg border bg-card shadow-sm transition-all hover:shadow-md hover:border-primary/20 cursor-pointer p-4 flex items-center"
       onClick={onAddComponent}
     >
       <div className="h-12 w-12 bg-primary/10 rounded-md mr-4 flex items-center justify-center">
