@@ -60,7 +60,7 @@ export async function createComponent(formData: FormData) {
     .from('components')
     .select('id')
     .eq('name', name)
-    .eq('owner_id', user.id)
+    .eq('profile_id', user.id)
     .maybeSingle()
   
   if (existingComponent) {
@@ -80,7 +80,7 @@ export async function createComponent(formData: FormData) {
         return { error: 'Image file size should be less than 2MB' }
       }
       
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage - use profile_id (which is the same as user.id)
       const fileName = `${user.id}/${Date.now()}-${previewImage.name}`
       const { data: uploadData, error: uploadError } = await supabase
         .storage
@@ -165,23 +165,22 @@ export async function createComponent(formData: FormData) {
     // Continue without preview image if there's an error
   }
   
-  // Prepare the component data - we'll use the first file's language as the primary language
   const componentData: {
     name: string;
     description: string;
     code: string;
     language: string;
     is_public: boolean;
-    owner_id: string;
+    profile_id: string;
     utilities: string | null;
     preview_image_url?: string | null;
   } = {
     name,
     description,
-    code: files[0].code, // Store the primary file code in the main code field
+    code: files[0].code,
     language,
     is_public: isPublic,
-    owner_id: user.id,
+    profile_id: user.id,
     utilities: utilities.length > 0 ? utilities.join(',') : null
   }
   

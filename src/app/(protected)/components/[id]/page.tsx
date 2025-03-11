@@ -3,12 +3,14 @@ import { createClient } from "@/utils/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
+import Image from "next/image"
 import {
   ArrowLeft,
   Download,
   Eye,
   Github,
   Code as CodeIcon,
+  User,
 } from "lucide-react"
 import { CodeActions } from "./_components/code-actions"
 import { ComponentRenderer } from "./_components/component-renderer"
@@ -30,7 +32,8 @@ async function getComponentById(id: string) {
     .from("components")
     .select(`
       *,
-      component_files(*)
+      component_files(*),
+      profiles(full_name, avatar_url)
     `)
     .eq("id", id)
     .single()
@@ -42,7 +45,7 @@ async function getComponentById(id: string) {
   
   // Check if the user has access to this component
   // Users can access components if they are the owner or if the component is public
-  if (component.owner_id !== user.id && !component.is_public) {
+  if (component.profile_id !== user.id && !component.is_public) {
     // User doesn't have access to this component
     return null
   }
@@ -95,6 +98,10 @@ export default async function ComponentDetailPage({
   
   // Parse additional files from the component_files array
   const additionalFiles = component.component_files || []
+  
+  // Creator info from profiles
+  const creatorName = component.profiles?.full_name || 'Unknown User'
+  const creatorAvatar = component.profiles?.avatar_url
   
   return (
     <div className="container max-w-7xl mx-auto py-6">
@@ -167,6 +174,27 @@ export default async function ComponentDetailPage({
             <h3 className="font-medium mb-4">Component Information</h3>
             
             <div className="space-y-4">
+              {/* Creator info */}
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Creator</div>
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                    {creatorAvatar ? (
+                      <Image 
+                        src={creatorAvatar} 
+                        alt={creatorName} 
+                        width={24} 
+                        height={24} 
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <User className="h-4 w-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <span className="text-sm">{creatorName}</span>
+                </div>
+              </div>
+            
               {/* Visibility info */}
               <div>
                 <div className="text-sm text-muted-foreground mb-1">Visibility</div>
@@ -263,33 +291,29 @@ export default async function ComponentDetailPage({
           
           {additionalFiles.length > 0 && (
             <TabsContent value="additional" className="mt-6 space-y-6">
-              {additionalFiles.length > 0 && (
-                <TabsContent value="additional" className="mt-6 space-y-6">
-                  {additionalFiles.map((file: {
-                    id: string;
-                    filename: string;
-                    code: string;
-                    language?: string;
-                  }) => (
-                    <div key={file.id} className="border rounded-lg overflow-hidden">
-                      <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
-                        <div className="font-medium flex items-center gap-2">
-                          <CodeIcon className="h-4 w-4 text-primary" />
-                          <span>{file.filename}</span>
-                        </div>
-                        
-                        {/* Copy button (client component) */}
-                        <CodeActions code={file.code} isSmall />
-                      </div>
-                      <div className="bg-[#282c34] p-6 overflow-auto">
-                        <pre className="text-[#abb2bf] font-mono text-sm whitespace-pre">
-                          {file.code}
-                        </pre>
-                      </div>
+              {additionalFiles.map((file: {
+                id: string;
+                filename: string;
+                code: string;
+                language?: string;
+              }) => (
+                <div key={file.id} className="border rounded-lg overflow-hidden">
+                  <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
+                    <div className="font-medium flex items-center gap-2">
+                      <CodeIcon className="h-4 w-4 text-primary" />
+                      <span>{file.filename}</span>
                     </div>
-                  ))}
-                </TabsContent>
-              )}
+                    
+                    {/* Copy button (client component) */}
+                    <CodeActions code={file.code} isSmall />
+                  </div>
+                  <div className="bg-[#282c34] p-6 overflow-auto">
+                    <pre className="text-[#abb2bf] font-mono text-sm whitespace-pre">
+                      {file.code}
+                    </pre>
+                  </div>
+                </div>
+              ))}
             </TabsContent>
           )}
           
