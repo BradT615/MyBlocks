@@ -7,11 +7,13 @@ import { themes } from 'prism-react-renderer'
 import { useTheme } from 'next-themes'
 import { cn } from '@/lib/utils'
 
+type SupportedLanguage = 'tsx' | 'jsx' | 'js' | 'ts' | 'html' | 'css' | 'scss' | 'less';
+
 interface ComponentRendererProps {
-  code: string
-  language?: string
-  showEditor?: boolean
-  scope?: Record<string, any>
+  code: string;
+  language?: SupportedLanguage;
+  showEditor?: boolean;
+  scope?: Record<string, unknown>; // Using unknown instead of any
 }
 
 export function ComponentRenderer({
@@ -96,7 +98,7 @@ export function ComponentRenderer({
         code={memoizedCode}
         scope={defaultScope}
         theme={currentTheme}
-        language={language as any}
+        language={language as SupportedLanguage}
       >
         <div className="relative">
           {/* Error Handling */}

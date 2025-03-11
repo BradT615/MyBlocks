@@ -55,15 +55,15 @@ async function getComponentById(id: string) {
       tags(name)
     `)
     .eq("component_id", id)
-  
-  // Extract tag names safely
+
+  // Extract tag names safely - using the original approach but with type safety
   const tags = componentTags?.map(item => {
     // Check if tags exists and has a name property
     if (item.tags && typeof item.tags === 'object' && 'name' in item.tags) {
-      return item.tags.name;
+      return item.tags.name as string;
     }
     return null;
-  }).filter(Boolean) || []
+  }).filter(Boolean as unknown as <T>(x: T | null | undefined) => x is T) || []
   
   // Return the component with additional files and tags
   return {
@@ -263,24 +263,33 @@ export default async function ComponentDetailPage({
           
           {additionalFiles.length > 0 && (
             <TabsContent value="additional" className="mt-6 space-y-6">
-              {additionalFiles.map((file: any) => (
-                <div key={file.id} className="border rounded-lg overflow-hidden">
-                  <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
-                    <div className="font-medium flex items-center gap-2">
-                      <CodeIcon className="h-4 w-4 text-primary" />
-                      <span>{file.filename}</span>
+              {additionalFiles.length > 0 && (
+                <TabsContent value="additional" className="mt-6 space-y-6">
+                  {additionalFiles.map((file: {
+                    id: string;
+                    filename: string;
+                    code: string;
+                    language?: string;
+                  }) => (
+                    <div key={file.id} className="border rounded-lg overflow-hidden">
+                      <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
+                        <div className="font-medium flex items-center gap-2">
+                          <CodeIcon className="h-4 w-4 text-primary" />
+                          <span>{file.filename}</span>
+                        </div>
+                        
+                        {/* Copy button (client component) */}
+                        <CodeActions code={file.code} isSmall />
+                      </div>
+                      <div className="bg-[#282c34] p-6 overflow-auto">
+                        <pre className="text-[#abb2bf] font-mono text-sm whitespace-pre">
+                          {file.code}
+                        </pre>
+                      </div>
                     </div>
-                    
-                    {/* Copy button (client component) */}
-                    <CodeActions code={file.code} isSmall />
-                  </div>
-                  <div className="bg-[#282c34] p-6 overflow-auto">
-                    <pre className="text-[#abb2bf] font-mono text-sm whitespace-pre">
-                      {file.code}
-                    </pre>
-                  </div>
-                </div>
-              ))}
+                  ))}
+                </TabsContent>
+              )}
             </TabsContent>
           )}
           

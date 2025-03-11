@@ -225,9 +225,11 @@ export async function createComponent(formData: FormData) {
   // Handle tags if provided
   if (tagsString && tagsString.trim() !== '') {
     let tagsList: string[] = [];
+    // Instead of using a catch variable at all, since we don't need the error object
     try {
       tagsList = JSON.parse(tagsString);
-    } catch (e) {
+    } catch {
+      // No variable in the catch clause
       // If parsing fails, try to handle it as a comma-separated string
       tagsList = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
     }
