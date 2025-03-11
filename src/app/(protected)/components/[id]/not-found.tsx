@@ -10,7 +10,7 @@ export default function ComponentNotFound() {
       </div>
       <h1 className="text-3xl font-bold tracking-tight mb-4">Component Not Found</h1>
       <p className="text-muted-foreground mb-8 max-w-md">
-        The component you're looking for either doesn't exist or you don't have permission to view it.
+        The component you&apos;re looking for either doesn&apos;t exist or you don&apos;t have permission to view it.
       </p>
       <div className="flex gap-4">
         <Button asChild>

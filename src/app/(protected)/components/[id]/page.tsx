@@ -2,20 +2,17 @@ import { notFound } from "next/navigation"
 import { createClient } from "@/utils/supabase/server"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import Image from "next/image"
 import Link from "next/link"
 import {
   ArrowLeft,
-  Copy,
   Download,
   Eye,
   Github,
   Code as CodeIcon,
-  Moon,
-  Sun
 } from "lucide-react"
 import { CodeActions } from "./_components/code-actions"
-import { ThemeToggle } from "./_components/theme-toggle"
+import { ComponentRenderer } from "./_components/component-renderer"
+import { ThemeToggleWithState } from "./_components/theme-toggle-with-state"
 
 // Function to get component by ID
 async function getComponentById(id: string) {
@@ -75,13 +72,18 @@ async function getComponentById(id: string) {
   }
 }
 
+// Define the params type
+type Params = Promise<{ id: string }>;
+
 export default async function ComponentDetailPage({
   params
 }: {
-  params: { id: string }
+  params: Params;
 }) {
-  // Make sure to await params.id properly
-  const { id } = params
+  // Await the params before using its properties
+  const resolvedParams = await params;
+  const id = resolvedParams.id;
+  
   const component = await getComponentById(id)
   
   if (!component) {
@@ -132,7 +134,7 @@ export default async function ComponentDetailPage({
             </div>
           </div>
           
-          {/* Component preview */}
+          {/* Component preview with live render */}
           <div className="border rounded-lg overflow-hidden">
             <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
               <h3 className="font-medium flex items-center gap-2">
@@ -140,23 +142,12 @@ export default async function ComponentDetailPage({
                 Preview
               </h3>
               
-              {/* Theme toggle extracted to client component */}
-              <ThemeToggle />
+              {/* Theme toggle with state management */}
+              <ThemeToggleWithState />
             </div>
-            <div className="aspect-video relative bg-background flex items-center justify-center">
-              {component.preview_image_url ? (
-                <Image 
-                  src={component.preview_image_url} 
-                  alt={component.name} 
-                  fill 
-                  className="object-contain"
-                />
-              ) : (
-                <div className="text-muted-foreground text-center p-12">
-                  <CodeIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                  <p>Preview not available</p>
-                </div>
-              )}
+            <div className="bg-background">
+              {/* Use the ComponentRenderer for dynamic preview */}
+              <ComponentRenderer code={component.code} language={component.language} />
             </div>
           </div>
           
@@ -248,6 +239,7 @@ export default async function ComponentDetailPage({
             {additionalFiles.length > 0 && (
               <TabsTrigger value="additional">Additional Files</TabsTrigger>
             )}
+            <TabsTrigger value="edit">Edit & Test</TabsTrigger>
           </TabsList>
           
           <TabsContent value="component" className="mt-6">
@@ -291,6 +283,29 @@ export default async function ComponentDetailPage({
               ))}
             </TabsContent>
           )}
+          
+          {/* Interactive edit tab */}
+          <TabsContent value="edit" className="mt-6">
+            <div className="border rounded-lg overflow-hidden">
+              <div className="p-4 border-b bg-muted/40">
+                <h3 className="font-medium flex items-center gap-2">
+                  <CodeIcon className="h-4 w-4 text-primary" />
+                  <span>Interactive Editor</span>
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Edit the component code and see changes in real-time
+                </p>
+              </div>
+              <div className="bg-background">
+                {/* Interactive editor with live preview */}
+                <ComponentRenderer 
+                  code={component.code} 
+                  language={component.language} 
+                  showEditor={true}
+                />
+              </div>
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
     </div>
