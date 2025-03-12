@@ -116,7 +116,7 @@ export default async function ComponentsPage() {
       description: component.description || '',
       updatedAt: formatRelativeTime(component.updated_at),
       tags: tags,
-      previewImgUrl: component.preview_image_url || '/api/placeholder/400/300',
+      previewImgUrl: component.preview_image_url || '/image-unavailable.svg',
       isPublic: component.is_public
     };
   }) : [];

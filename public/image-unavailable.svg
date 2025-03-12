@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- Variables based on globals.css -->
+  <defs>
+    <!-- Light theme colors -->
+    <style>
+      :root {
+        --background: hsla(0, 0%, 98%, 1);
+        --foreground: hsla(240, 10%, 3.9%, 1);
+        --muted: hsla(240, 4.8%, 95.9%, 1);
+        --muted-foreground: hsla(240, 3.8%, 46.1%, 1);
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --background: hsla(240, 10%, 3.9%, 1);
+          --foreground: hsla(0, 0%, 98%, 1);
+          --muted: hsla(240, 3.7%, 15.9%, 1);
+          --muted-foreground: hsla(240, 5%, 64.9%, 1);
+        }
+      }
+
+      /* Slightly different background colors */
+      .bg-placeholder-light {
+        fill: hsla(240, 4.8%, 95.9%, 1); /* Same as --muted in light mode */
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        .bg-placeholder-light {
+          display: none;
+        }
+      }
+      
+      .bg-placeholder-dark {
+        fill: hsla(240, 3.7%, 15.9%, 1); /* Same as --muted in dark mode */
+        display: none;
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        .bg-placeholder-dark {
+          display: inline;
+        }
+      }
+    </style>
+  </defs>
+  
+  <!-- Background - using muted instead of background color -->
+  <rect width="400" height="300" class="bg-placeholder-light" />
+  <rect width="400" height="300" class="bg-placeholder-dark" />
+
+  <!-- Logo Centered with disabled appearance -->
+  <g transform="translate(188, 130)">
+    <!-- Front Block -->
+    <path 
+      d="M5 0
+      L0 5 
+      L0 21 
+      L5 16
+      L5 5
+      L16 5 
+      L21 0 
+      L5 0"
+      fill="var(--muted-foreground)" 
+      opacity="0.5"
+    />
+    
+    <!-- Back Block -->
+    <path 
+      d="M19 24 
+      L24 19
+      L24 3 
+      L19 8
+      L19 19 
+      L8 19 
+      L3 24 
+      L19 24"
+      fill="var(--muted-foreground)"
+      opacity="0.5"
+    />
+  </g>
+
+  <!-- Image unavailable text -->
+  <text x="200" y="180" font-family="system-ui, -apple-system, 'Geist Sans', sans-serif" font-size="14" text-anchor="middle" fill="var(--muted-foreground)">Image unavailable</text>
+</svg>
