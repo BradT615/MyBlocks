@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useRef, useTransition } from 'react'
+import React, { useState, useRef, useTransition } from 'react'
+import Image from 'next/image'
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -16,16 +17,21 @@ import {
   PencilLine,
   Loader2,
   AlertCircle,
-  CheckCircle2
+  CheckCircle2,
+  ArrowLeft,
+  RefreshCw
 } from 'lucide-react'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { OTPInput } from '@/components/ui/input-otp'
 import { 
   updateProfileEmail, 
   updateProfileName, 
   updateProfileAvatar, 
-  removeProfileAvatar 
+  removeProfileAvatar,
+  resendEmailVerification
 } from '../actions'
 
 interface SettingsClientProps {
@@ -60,6 +66,31 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     message: string
   } | null>(null)
   
+  // OTP verification modal state
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false)
+  const [otpValue, setOtpValue] = useState("")
+  const [emailToVerify, setEmailToVerify] = useState("")
+  const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [countdown, setCountdown] = useState(60)
+  const [canResend, setCanResend] = useState(false)
+  
+  // Handle countdown for resend button
+  React.useEffect(() => {
+    if (!isOtpModalOpen) return
+    
+    if (countdown <= 0) {
+      setCanResend(true)
+      return
+    }
+    
+    const timer = setTimeout(() => {
+      setCountdown(countdown - 1)
+    }, 1000)
+    
+    return () => clearTimeout(timer)
+  }, [countdown, isOtpModalOpen])
+  
   // Handle email change
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
@@ -80,11 +111,6 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     }
   }
 
-  // State for OTP verification
-  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false)
-  const [otpValue, setOtpValue] = useState("")
-  const [emailToVerify, setEmailToVerify] = useState("")
-
   // Handle initiating email change
   const handleSaveEmail = () => {
     // Validate email
@@ -100,23 +126,23 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     setStatusMessage(null)
     startTransition(async () => {
       try {
-        // Instead of immediately updating, send OTP verification
-        const result = await updateProfileEmail(email, true) // true means send OTP only
+        // Send OTP verification
+        const result = await updateProfileEmail(email)
         if (result.error) {
           setStatusMessage({
             type: 'error',
             message: result.error
           })
         } else {
-          // Show OTP verification interface
-          setIsVerifyingEmail(true)
+          // Show OTP verification modal
+          setIsOtpModalOpen(true)
           setEmailToVerify(email)
-          setStatusMessage({
-            type: 'success',
-            message: 'Verification code sent to your email'
-          })
+          setCountdown(60)
+          setCanResend(false)
+          // Reset status message as we're showing the modal now
+          setStatusMessage(null)
         }
-      } catch (error) {
+      } catch {
         setStatusMessage({
           type: 'error',
           message: 'An unexpected error occurred'
@@ -127,41 +153,81 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   
   // Handle OTP verification for email change
   const handleVerifyOtp = () => {
-    if (otpValue.length !== 6) {
-      setStatusMessage({
-        type: 'error',
-        message: 'Please enter the 6-digit verification code'
-      })
-      return
-    }
+    if (otpValue.length !== 6) return
     
-    setStatusMessage(null)
+    setIsVerifying(true)
     startTransition(async () => {
       try {
-        // Complete email update with OTP
-        const result = await updateProfileEmail(emailToVerify, false, otpValue)
+        // Verify OTP to complete email update
+        const result = await updateProfileEmail(emailToVerify, otpValue)
+        if (result.error) {
+          setStatusMessage({
+            type: 'error',
+            message: result.error
+          })
+          setIsVerifying(false)
+        } else {
+          // Success! Close modal and update UI
+          setStatusMessage({
+            type: 'success',
+            message: 'Email updated successfully'
+          })
+          setIsOtpModalOpen(false)
+          setIsEditingEmail(false)
+          setEmailChanged(false)
+          setOtpValue("")
+          setIsVerifying(false)
+          // Update the displayed email
+          setEmail(emailToVerify)
+        }
+      } catch {
+        setStatusMessage({
+          type: 'error',
+          message: 'An unexpected error occurred'
+        })
+        setIsVerifying(false)
+      }
+    })
+  }
+  
+  // Handle resending verification code
+  const handleResendCode = () => {
+    if (!canResend) return
+    
+    setIsResending(true)
+    startTransition(async () => {
+      try {
+        const result = await resendEmailVerification(emailToVerify)
         if (result.error) {
           setStatusMessage({
             type: 'error',
             message: result.error
           })
         } else {
+          // Reset countdown
+          setCountdown(60)
+          setCanResend(false)
           setStatusMessage({
             type: 'success',
-            message: 'Email updated successfully'
+            message: 'Verification code resent'
           })
-          setIsVerifyingEmail(false)
-          setIsEditingEmail(false)
-          setEmailChanged(false)
-          setOtpValue("")
         }
-      } catch (error) {
+      } catch {
         setStatusMessage({
           type: 'error',
-          message: 'An unexpected error occurred'
+          message: 'Failed to resend verification code'
         })
+      } finally {
+        setIsResending(false)
       }
     })
+  }
+  
+  // Handle closing OTP modal
+  const handleCloseOtpModal = () => {
+    setIsOtpModalOpen(false)
+    setOtpValue("")
+    // Keep email in editing state
   }
   
   // Handle saving name change
@@ -191,7 +257,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           setIsEditingName(false)
           setNameChanged(false)
         }
-      } catch (error) {
+      } catch {
         setStatusMessage({
           type: 'error',
           message: 'An unexpected error occurred'
@@ -245,7 +311,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           // Update local state with new avatar URL
           setAvatarUrl(result.avatarUrl || '')
         }
-      } catch (error) {
+      } catch {
         setStatusMessage({
           type: 'error',
           message: 'An unexpected error occurred'
@@ -281,7 +347,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           // Update local state
           setAvatarUrl('')
         }
-      } catch (error) {
+      } catch {
         setStatusMessage({
           type: 'error',
           message: 'An unexpected error occurred'
@@ -338,40 +404,6 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </div>
           
           <CardContent className="p-6 space-y-6">
-            {/* Email OTP Verification Modal */}
-            {isVerifyingEmail && (
-              <div className="border rounded-lg p-4 mb-6 bg-muted/10">
-                <h3 className="font-medium mb-2">Email Verification</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Enter the 6-digit verification code sent to {emailToVerify}
-                </p>
-                <div className="flex flex-col md:flex-row gap-4 items-center">
-                  <div className="w-full md:flex-1">
-                    <Input
-                      type="text"
-                      placeholder="Enter 6-digit code"
-                      maxLength={6}
-                      value={otpValue}
-                      onChange={(e) => setOtpValue(e.target.value.replace(/[^0-9]/g, ''))}
-                    />
-                  </div>
-                  <Button
-                    onClick={handleVerifyOtp}
-                    disabled={otpValue.length !== 6 || isPending}
-                  >
-                    {isPending ? (
-                      <span className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Verifying...
-                      </span>
-                    ) : (
-                      "Verify"
-                    )}
-                  </Button>
-                </div>
-              </div>
-            )}
-            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <Label htmlFor="email" className="text-sm font-medium">
@@ -488,9 +520,11 @@ export function SettingsClient({ profile }: SettingsClientProps) {
                 <div className="relative group cursor-pointer">
                   <div className="h-20 w-20 rounded-full bg-muted/50 border flex items-center justify-center text-lg font-semibold overflow-hidden">
                     {avatarUrl ? (
-                      <img 
+                      <Image 
                         src={avatarUrl} 
                         alt={fullName || 'Profile'} 
+                        width={80}
+                        height={80}
                         className="h-full w-full object-cover"
                       />
                     ) : (
@@ -632,6 +666,108 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           </CardContent>
         </Card>
       </div>
+      
+      {/* OTP Verification Modal */}
+      <Dialog open={isOtpModalOpen} onOpenChange={setIsOtpModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">Verify Email Change</DialogTitle>
+          </DialogHeader>
+          
+          <div className="text-center mb-6">
+            <div className="mb-4 flex justify-center">
+              <Mail className="h-10 w-10 m-2 text-primary" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">Check your email</h3>
+            <p className="text-sm text-muted-foreground">
+              We&apos;ve sent a 6-digit code to <strong>{emailToVerify}</strong>
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Enter the code below to verify your new email
+            </p>
+          </div>
+          
+          <div className="flex justify-center" onKeyDown={(e) => {
+            if (e.key === "Enter" && otpValue.length === 6 && !isVerifying) {
+              handleVerifyOtp();
+            }
+          }}>
+            <OTPInput
+              value={otpValue}
+              onChange={setOtpValue}
+              disabled={isVerifying}
+              length={6}
+            />
+          </div>
+          
+          {statusMessage && (
+            <div className={`rounded-lg p-3 text-sm ${
+              statusMessage.type === 'error' 
+                ? 'bg-red-500/5 border border-red-500/20 text-red-500' 
+                : 'bg-green-500/5 border border-green-500/20 text-green-500'
+            }`}>
+              <div className="flex items-center gap-2">
+                {statusMessage.type === 'error' ? (
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
+                )}
+                <span>{statusMessage.message}</span>
+              </div>
+            </div>
+          )}
+          
+          <Button 
+            onClick={handleVerifyOtp}
+            className="w-full h-12"
+            disabled={otpValue.length !== 6 || isVerifying}
+          >
+            {isVerifying ? (
+              <span className="flex items-center gap-2 justify-center">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Verifying...
+              </span>
+            ) : (
+              "Verify Email Change"
+            )}
+          </Button>
+          
+          <div className="flex flex-col gap-4 mt-2">
+            <button 
+              type="button"
+              onClick={handleResendCode}
+              disabled={!canResend || isResending}
+              className={`text-sm flex items-center justify-center mx-auto gap-1
+                ${canResend 
+                  ? 'text-primary hover:underline cursor-pointer' 
+                  : 'text-muted-foreground cursor-not-allowed'}`}
+            >
+              {isResending ? (
+                <>
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <span>Sending new code...</span>
+                </>
+              ) : canResend ? (
+                <>
+                  <RefreshCw className="h-3 w-3" />
+                  <span>Resend verification code</span>
+                </>
+              ) : (
+                <span>Resend code in {countdown}s</span>
+              )}
+            </button>
+            
+            <button
+              type="button"
+              onClick={handleCloseOtpModal}
+              className="text-sm flex items-center justify-center mx-auto gap-1 text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-3 w-3" />
+              <span>Cancel email change</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

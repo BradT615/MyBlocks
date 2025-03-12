@@ -3,8 +3,8 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/utils/supabase/server'
 
-// Update user's email - with OTP verification
-export async function updateProfileEmail(email: string, sendOtpOnly = false, otp?: string) {
+// Update user's email with OTP verification
+export async function updateProfileEmail(email: string, otp?: string) {
   try {
     const supabase = await createClient()
     
@@ -26,28 +26,13 @@ export async function updateProfileEmail(email: string, sendOtpOnly = false, otp
       return { error: 'The email address is the same as your current one' }
     }
 
-    // Step 1: If we're just sending the OTP
-    if (sendOtpOnly) {
-      // Request OTP by initiating email change with signInWithOtp
-      const { error: otpError } = await supabase.auth.updateUser({
-        email,
-      })
-
-      if (otpError) {
-        console.error('Error sending OTP for email update:', otpError)
-        return { error: otpError.message }
-      }
-
-      return { success: true, message: 'Verification code sent' }
-    }
-    
-    // Step 2: If we have the OTP, verify and complete the update
-    if (!sendOtpOnly && otp) {
+    // If OTP is provided, we're verifying the change
+    if (otp) {
       // Verify OTP
       const { error: verifyError } = await supabase.auth.verifyOtp({
         email,
         token: otp,
-        type: 'email'
+        type: 'email_change'
       })
 
       if (verifyError) {
@@ -55,9 +40,15 @@ export async function updateProfileEmail(email: string, sendOtpOnly = false, otp
         return { error: verifyError.message || 'Invalid verification code' }
       }
 
-      // After successful verification, update user's email
+      // Revalidate settings page
+      revalidatePath('/settings')
+      
+      return { success: true }
+    } else {
+      // No OTP, so we're initiating the email change
+      // Supabase will send confirmation links to both the current and new email
       const { error: updateError } = await supabase.auth.updateUser({
-        email: email,
+        email: email
       })
       
       if (updateError) {
@@ -65,16 +56,44 @@ export async function updateProfileEmail(email: string, sendOtpOnly = false, otp
         return { error: updateError.message }
       }
       
-      // Revalidate settings page
-      revalidatePath('/settings')
-      
-      return { success: true }
+      return { success: true, message: 'Verification email sent' }
     }
-
-    // Neither sending OTP nor verifying - invalid state
-    return { error: 'Invalid request state' }
   } catch (error) {
     console.error('Unexpected error updating email:', error)
+    return { error: 'An unexpected error occurred' }
+  }
+}
+
+// Resend email verification for email change
+export async function resendEmailVerification(email: string) {
+  try {
+    const supabase = await createClient()
+    
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return { error: 'You must be logged in to update your profile' }
+    }
+    
+    // Validate email
+    if (!email || typeof email !== 'string') {
+      return { error: 'Please provide a valid email address' }
+    }
+
+    // Initiate the email update process again, which will send a new OTP
+    const { error: updateError } = await supabase.auth.updateUser({
+      email: email
+    })
+    
+    if (updateError) {
+      console.error('Error sending email verification:', updateError)
+      return { error: updateError.message }
+    }
+    
+    return { success: true, message: 'Verification email resent' }
+  } catch (error) {
+    console.error('Unexpected error resending verification:', error)
     return { error: 'An unexpected error occurred' }
   }
 }
