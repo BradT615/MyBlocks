@@ -7,11 +7,10 @@ A streamlined platform that bridges the gap between designers and developers by 
 MyBlocks serves as a centralized hub where teams can:
 
 - Browse and search components in a visual gallery
-- Upload and share components with comprehensive dependency management
-- Preview components in light and dark modes with live rendering
-- Access and copy component code across multiple languages and frameworks
+- Upload and share components
+- Preview components in light and dark modes
+- Access and copy component code
 - Tag and categorize components for easy discovery
-- Support complex multi-file components with proper file relationships
 
 The platform solves collaboration challenges between design and development teams by creating a shared visual language and resource repository.
 
@@ -24,13 +23,12 @@ The platform solves collaboration challenges between design and development team
 - **TypeScript**: For type safety
 
 ### Interactive Features
-- **Sandpack**: For robust code rendering with dependency support
-- **WebContainers**: For advanced component preview capabilities
-- **Babel/TypeScript**: For code transpilation and transformation
+- **Sandpack**: For code display
+- **React-Live**: For basic component preview rendering
 
 ### Backend & Data
 - **Supabase**: Authentication, database, and storage
-- **PostgreSQL**: Relational database with enhanced schema for component relationships
+- **PostgreSQL**: Relational database (provided by Supabase)
 - **Supabase Storage**: File storage for component assets
 
 ### Deployment
@@ -40,7 +38,7 @@ The platform solves collaboration challenges between design and development team
 
 ## Overview
 
-MyBlocks uses a Supabase PostgreSQL database with a profile-based architecture and an enhanced component system to support complex UI components with proper dependency management.
+MyBlocks uses a Supabase PostgreSQL database with a profile-based architecture to create a clean separation between authentication and application data. This design provides better security, maintainability, and extensibility.
 
 ## Schema Design
 
@@ -57,24 +55,23 @@ The database is organized around these main entities:
 
 - **components**: Core table for UI components
   - Connected to profiles via profile_id
-  - Contains main component metadata
+  - Contains main component code and metadata
   - Has privacy controls (is_public flag)
   - Tracks framework and render mode preferences
   - References the entry file for multi-file components
 
-- **component_files**: Files that make up components
-  - Supports multi-file components with proper relationships
-  - Contains code, language, and file type information
-  - Tracks which file is the entry point for the component
+- **component_files**: Additional files for components
+  - Allows multi-file components
+  - Connected to components via component_id
+  - Contains metadata about file type, language and order
 
 - **component_dependencies**: External package dependencies
-  - Tracks npm packages and their versions
-  - Associates dependencies with specific components
-  - Supports proper rendering with third-party libraries
+  - Tracks npm packages required by components
+  - Contains version information
 
-- **file_relationships**: Tracks relationships between files
-  - Maps import statements between component files
-  - Enables proper bundling and visualization of component structure
+- **file_relationships**: Tracks dependencies between files
+  - Maps import relationships
+  - Enables proper bundling and visualization
 
 ### Organization
 
@@ -91,6 +88,25 @@ The database is organized around these main entities:
 - **collection_components**: Junction table for collections and components
   - Allows many-to-many relationship
 
+## Relationship Diagram
+auth.users (Supabase Auth)
+↓
+profiles
+↙        ↘
+components  collections
+↙  ↓      ↘     ↓
+|  |       |    |
+↓  ↓       ↓    ↓
+component_files  collection_components
+↕     ↓           ↑
+|     |           |
+↓     ↓           |
+file_relationships |
+|
+component_dependencies  component_tags
+↑
+tags
+Copy
 ## Security Model
 
 ### Row-Level Security Policies
@@ -104,124 +120,127 @@ Row-level security (RLS) policies ensure:
 3. Users can only modify their own data
 4. Tags are globally visible but components using them remain private
 
-## Component Rendering System
+### Functions & Triggers
 
-The enhanced component system supports:
+- **handle_new_user()**: Automatically creates a profile when a user registers
+- **handle_profile_update()**: Synchronizes profile updates back to auth.users metadata
+- **update_updated_at_column()**: Keeps last-modified timestamps current
+- **update_component_entry_file()**: Updates component entry file references
 
-1. **Multi-file Components**: Components can consist of multiple related files with proper dependencies
-2. **Third-party Dependencies**: Components can specify external npm packages they depend on
-3. **Framework Flexibility**: Support for React, Vue, and other frameworks
-4. **Language Support**: TypeScript, JavaScript, CSS, SCSS and more
-5. **Sandboxed Execution**: Components render in isolated environments for safety and reliability
+## MyBlocks MVP Features
 
-## Implementation Notes
+### Component Gallery
+- Grid view of components with basic search functionality
+- Simple filtering by tags
+- Basic sorting options (newest, popular)
 
-### Component Upload Flow
+### Component Detail Page
+- Code display with syntax highlighting
+- Basic component preview
+- Light/dark mode toggle
+- Tag display
+- Copy code functionality
 
-1. User defines component metadata and dependencies
-2. Files are uploaded with proper relationships
-3. Entry file is specified for the component
-4. External dependencies are registered
-5. Component is stored with all necessary information for rendering
+### Upload Components
+- Simple form-based component upload
+- Basic metadata: name, description, tags
+- Code input
 
-### Component Rendering Flow
+### User Features
+- Supabase authentication (sign up/login)
+- Basic user profiles
+- Ability to view owned components
 
-1. Component and its files are retrieved from the database
-2. Files are organized based on relationships
-3. Dependencies are resolved
-4. Component is rendered in a sandboxed environment
-5. Live preview is generated with proper styling
+## Development Roadmap
 
-### Query Pattern Examples
+### Phase 1: Core Repository
+- Authentication
+- Component gallery
+- Component detail view
+- Basic component upload
 
-```sql
--- Get component with all its files and dependencies
-SELECT 
-  c.*,
-  json_agg(DISTINCT cf.*) as files,
-  json_agg(DISTINCT cd.*) as dependencies
-FROM components c
-LEFT JOIN component_files cf ON c.id = cf.component_id
-LEFT JOIN component_dependencies cd ON c.id = cd.component_id
-WHERE c.id = 'component-id'
-GROUP BY c.id;
+### Phase 2: Enhanced Features
+- Component previews
+- Light/dark mode toggle
+- Tagging system
 
--- Get component entry file
-SELECT cf.*
-FROM component_files cf
-JOIN components c ON cf.id = c.entry_file_id
-WHERE c.id = 'component-id';
+### Phase 3: User Experience
+- Favorites functionality
+- Improved search and filtering
+- Basic user profiles
 
--- Get file relationships for a component
-SELECT 
-  fr.*,
-  source.filename as source_filename,
-  target.filename as target_filename
-FROM file_relationships fr
-JOIN component_files source ON fr.source_file_id = source.id
-JOIN component_files target ON fr.target_file_id = target.id
-WHERE source.component_id = 'component-id';
+## Enhanced Component System Implementation Checklist
 
-MyBlocks MVP Features
-Component Gallery
+### 1. Database Setup
+- [x] Run SQL script to add framework and entry_file columns
+- [x] Create component_dependencies table
+- [x] Add new columns to component_files table
+- [x] Create file_relationships table
+- [x] Add entry file foreign key constraint
+- [x] Create update trigger function
+- [x] Configure Row Level Security on new tables
+- [ ] Verify all tables and relationships
 
-Grid view of components with advanced search functionality
-Filtering by tags, framework, and dependencies
-Sorting options (newest, popular, complexity)
+### 2. Backend API Updates
+- [ ] Update component fetch API to include related files
+- [ ] Update component fetch API to include dependencies
+- [ ] Create API endpoint for fetching component dependencies
+- [ ] Create API endpoint for managing file relationships
+- [ ] Update component creation to handle entry file designation
+- [ ] Update error handling for multi-file components
 
-Component Detail Page
+### 3. Component Upload UI Enhancements
+- [ ] Add framework selection dropdown to upload form
+- [ ] Add render mode selection to upload form
+- [ ] Enhance file upload to support multiple files
+- [ ] Add UI for designating entry file
+- [ ] Create file ordering interface
+- [ ] Add file type selection for each uploaded file
 
-Code display with syntax highlighting for all component files
-Live component preview with dependency support
-Light/dark mode toggle and responsive testing
-Tag and dependency display
-Copy code functionality for individual files or entire component
+### 4. Dependency Management UI
+- [ ] Create dependency search/selection interface
+- [ ] Add UI for specifying package versions
+- [ ] Create visual indicator for selected dependencies
+- [ ] Add dependency removal functionality
+- [ ] Implement dependency validation
 
-Upload Components
+### 5. File Relationship UI
+- [ ] Create UI for visualizing file relationships
+- [ ] Add interface for defining import paths
+- [ ] Implement auto-detection of imports from code
+- [ ] Add validation for circular dependencies
+- [ ] Create visual feedback for relationship status
 
-Multi-file component upload
-Dependency selection
-Framework and language configuration
-File relationship management
+### 6. Enhanced Renderer Setup
+- [ ] Install and configure Sandpack
+- [ ] Create basic file bundling logic
+- [ ] Set up dependency injection system
+- [ ] Implement framework-specific rendering options
+- [ ] Create fallback rendering for unsupported cases
 
-User Features
+### 7. Component Detail Page Updates
+- [ ] Update page to handle multi-file components
+- [ ] Create tabbed interface for multiple files
+- [ ] Display dependencies section
+- [ ] Enhance preview with framework-specific options
+- [ ] Add file relationship visualization
 
-Supabase authentication (sign up/login)
-User profiles with component statistics
-Ability to view, edit, and manage owned components
+### 8. Testing and Deployment
+- [ ] Test creating single-file components
+- [ ] Test creating multi-file components
+- [ ] Test component with external dependencies
+- [ ] Test file relationship functionality
+- [ ] Test rendering in different frameworks
+- [ ] Deploy updated system
 
-Development Roadmap
-Phase 1: Enhanced Schema & Backend
+## Future Enhancements (Post-MVP)
+- Version history
+- Interactive prop editing
+- Collections and organization
+- Responsive testing
+- Advanced export options
+- Collaboration features
 
-Implement new database schema
-Create APIs for dependency management
-Build file relationship tracking
+## License
 
-Phase 2: Improved Component Renderer
-
-Implement Sandpack integration
-Support multiple files in preview
-Add dependency resolution
-
-Phase 3: Advanced Upload Interface
-
-Create multi-file upload experience
-Add dependency selection interface
-Implement file relationship visualization
-
-Phase 4: Framework & Language Support
-
-Expand language support with proper code highlighting
-Add framework-specific rendering capabilities
-Implement specialized preview modes
-
-Future Enhancements
-
-Version history with visual diffs
-Interactive prop editing
-Component screenshots and thumbnails
-Team collaboration features
-Component analytics
-
-License
-MIT
+[MIT](https://choosealicense.com/licenses/mit/)
