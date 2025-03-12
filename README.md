@@ -179,11 +179,11 @@ Row-level security (RLS) policies ensure:
 - [x] Add entry file foreign key constraint
 - [x] Create update trigger function
 - [x] Configure Row Level Security on new tables
-- [ ] Verify all tables and relationships
+- [x] Verify all tables and relationships
 
 ### 2. Backend API Updates
-- [ ] Update component fetch API to include related files
-- [ ] Update component fetch API to include dependencies
+- [x] Update component fetch API to include related files
+- [x] Update component fetch API to include dependencies
 - [ ] Create API endpoint for fetching component dependencies
 - [ ] Create API endpoint for managing file relationships
 - [ ] Update component creation to handle entry file designation

@@ -11,67 +11,125 @@ import {
   Github,
   Code as CodeIcon,
   User,
+  Package
 } from "lucide-react"
 import { CodeActions } from "./_components/code-actions"
 import { ComponentRenderer } from "./_components/component-renderer"
 import { ThemeToggleWithState } from "./_components/theme-toggle-with-state"
 
+// Function to validate UUID format
+function isValidUUID(id: string) {
+  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+  return uuidRegex.test(id);
+}
+
 // Function to get component by ID
 async function getComponentById(id: string) {
+  // Input validation for ID
+  if (!id || (typeof id === 'string' && !id.trim())) {
+    console.error("Invalid component ID: empty or null");
+    return null;
+  }
+  
+  // Additional validation for UUID format if you're using UUIDs
+  // Uncomment if your IDs are UUIDs
+  // if (!isValidUUID(id)) {
+  //   console.error("Invalid component ID format");
+  //   return null;
+  // }
+  
   const supabase = await createClient()
   
   // Get the current user
   const { data: { user } } = await supabase.auth.getUser()
   
   if (!user) {
-    return null
-  }
-  
-  // Fetch the component with the given ID
-  const { data: component, error } = await supabase
-    .from("components")
-    .select(`
-      *,
-      component_files(*),
-      profiles(full_name, avatar_url)
-    `)
-    .eq("id", id)
-    .single()
-  
-  if (error || !component) {
-    console.error("Error fetching component:", error)
-    return null
-  }
-  
-  // Check if the user has access to this component
-  // Users can access components if they are the owner or if the component is public
-  if (component.profile_id !== user.id && !component.is_public) {
-    // User doesn't have access to this component
-    return null
-  }
-  
-  // Fetch tags for this component
-  const { data: componentTags } = await supabase
-    .from("component_tags")
-    .select(`
-      tag_id,
-      tags(name)
-    `)
-    .eq("component_id", id)
-
-  // Extract tag names safely - using the original approach but with type safety
-  const tags = componentTags?.map(item => {
-    // Check if tags exists and has a name property
-    if (item.tags && typeof item.tags === 'object' && 'name' in item.tags) {
-      return item.tags.name as string;
-    }
+    console.error("No authenticated user found");
     return null;
-  }).filter(Boolean as unknown as <T>(x: T | null | undefined) => x is T) || []
+  }
   
-  // Return the component with additional files and tags
-  return {
-    ...component,
-    tags
+  try {
+    // Fetch the component with the given ID, specifying the relationship explicitly
+    const { data: component, error } = await supabase
+      .from("components")
+      .select(`
+        *,
+        component_files!component_files_component_id_fkey(*),
+        profiles(full_name, avatar_url)
+      `)
+      .eq("id", id)
+      .single()
+    
+    if (error || !component) {
+      console.error("Error fetching component:", error);
+      return null;
+    }
+    
+    // Check if the user has access to this component
+    // Users can access components if they are the owner or if the component is public
+    if (component.profile_id !== user.id && !component.is_public) {
+      console.error("User doesn't have access to this component");
+      return null;
+    }
+    
+    // Fetch tags for this component
+    const { data: componentTags, error: tagsError } = await supabase
+      .from("component_tags")
+      .select(`
+        tag_id,
+        tags(name)
+      `)
+      .eq("component_id", id)
+    
+    if (tagsError) {
+      console.error("Error fetching component tags:", tagsError);
+    }
+
+    // Extract tag names safely - using a type-safe approach
+    const tags = componentTags?.map(item => {
+      // Check if tags exists and has a name property
+      if (item.tags && typeof item.tags === 'object' && 'name' in item.tags) {
+        return item.tags.name as string;
+      }
+      return null;
+    }).filter(Boolean as unknown as <T>(x: T | null | undefined) => x is T) || [];
+    
+    // NEW: Fetch dependencies for this component
+    const { data: dependencies, error: dependenciesError } = await supabase
+      .from("component_dependencies")
+      .select('*')
+      .eq("component_id", id)
+    
+    if (dependenciesError) {
+      console.error("Error fetching component dependencies:", dependenciesError);
+    }
+    
+    // Return a limited, sanitized view of the component with dependencies
+    return {
+      id: component.id,
+      name: component.name,
+      description: component.description || '',
+      code: component.code,
+      language: component.language || 'tsx',
+      framework: component.framework || 'react',
+      render_mode: component.render_mode || 'client',
+      is_public: component.is_public,
+      updated_at: component.updated_at,
+      profile_id: component.profile_id,
+      component_files: component.component_files || [],
+      entry_file_id: component.entry_file_id,
+      utilities: component.utilities || '',
+      preview_image_url: component.preview_image_url || '',
+      profiles: {
+        full_name: component.profiles?.full_name || 'Unknown User',
+        avatar_url: component.profiles?.avatar_url || null
+      },
+      tags,
+      dependencies: dependencies || []
+    };
+  } catch (err) {
+    console.error("Unexpected error in getComponentById:", err);
+    return null;
   }
 }
 
@@ -87,21 +145,21 @@ export default async function ComponentDetailPage({
   const resolvedParams = await params;
   const id = resolvedParams.id;
   
-  const component = await getComponentById(id)
+  const component = await getComponentById(id);
   
   if (!component) {
-    notFound()
+    notFound();
   }
   
   // Extract utilities if any
-  const utilities = component.utilities ? component.utilities.split(',') : []
+  const utilities = component.utilities ? component.utilities.split(',') : [];
   
   // Parse additional files from the component_files array
-  const additionalFiles = component.component_files || []
+  const additionalFiles = component.component_files || [];
   
   // Creator info from profiles
-  const creatorName = component.profiles?.full_name || 'Unknown User'
-  const creatorAvatar = component.profiles?.avatar_url
+  const creatorName = component.profiles?.full_name || 'Unknown User';
+  const creatorAvatar = component.profiles?.avatar_url;
   
   return (
     <div className="container max-w-7xl mx-auto py-6">
@@ -213,6 +271,18 @@ export default async function ComponentDetailPage({
                 <span className="text-sm">{component.language}</span>
               </div>
               
+              {/* Framework info */}
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Framework</div>
+                <span className="text-sm capitalize">{component.framework}</span>
+              </div>
+              
+              {/* Render mode */}
+              <div>
+                <div className="text-sm text-muted-foreground mb-1">Render Mode</div>
+                <span className="text-sm capitalize">{component.render_mode}</span>
+              </div>
+              
               {/* Tags */}
               {component.tags && component.tags.length > 0 && (
                 <div>
@@ -224,6 +294,29 @@ export default async function ComponentDetailPage({
                         className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs"
                       >
                         {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Dependencies */}
+              {component.dependencies && component.dependencies.length > 0 && (
+                <div>
+                  <div className="text-sm text-muted-foreground mb-1">Dependencies</div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {component.dependencies.map((dep: any) => (
+                      <span 
+                        key={dep.id} 
+                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs gap-1 ${
+                          dep.is_dev_dependency 
+                            ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400" 
+                            : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                        }`}
+                        title={dep.is_dev_dependency ? 'Dev Dependency' : 'Dependency'}
+                      >
+                        <Package className="h-3 w-3" />
+                        {dep.package_name}@{dep.package_version}
                       </span>
                     ))}
                   </div>
@@ -296,12 +389,20 @@ export default async function ComponentDetailPage({
                 filename: string;
                 code: string;
                 language?: string;
+                is_entry_file?: boolean;
               }) => (
                 <div key={file.id} className="border rounded-lg overflow-hidden">
                   <div className="p-4 border-b bg-muted/40 flex items-center justify-between">
                     <div className="font-medium flex items-center gap-2">
                       <CodeIcon className="h-4 w-4 text-primary" />
-                      <span>{file.filename}</span>
+                      <span className="flex items-center">
+                        {file.filename}
+                        {file.is_entry_file && (
+                          <span className="ml-2 text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                            Entry File
+                          </span>
+                        )}
+                      </span>
                     </div>
                     
                     {/* Copy button (client component) */}
