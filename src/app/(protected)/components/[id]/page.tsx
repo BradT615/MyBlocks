@@ -17,12 +17,6 @@ import { CodeActions } from "./_components/code-actions"
 import { ComponentRenderer } from "./_components/component-renderer"
 import { ThemeToggleWithState } from "./_components/theme-toggle-with-state"
 
-// Function to validate UUID format
-function isValidUUID(id: string) {
-  const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-  return uuidRegex.test(id);
-}
-
 // Function to get component by ID
 async function getComponentById(id: string) {
   // Input validation for ID
@@ -305,7 +299,12 @@ export default async function ComponentDetailPage({
                 <div>
                   <div className="text-sm text-muted-foreground mb-1">Dependencies</div>
                   <div className="flex flex-wrap gap-1 mt-1">
-                    {component.dependencies.map((dep: any) => (
+                    {component.dependencies.map((dep: {
+                      id: string;
+                      package_name: string;
+                      package_version: string;
+                      is_dev_dependency?: boolean;
+                    }) => (
                       <span 
                         key={dep.id} 
                         className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs gap-1 ${
