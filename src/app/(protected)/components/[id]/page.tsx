@@ -17,6 +17,7 @@ import { CodeActions } from "./_components/code-actions"
 import { ComponentRenderer } from "./_components/component-renderer"
 import { ThemeToggleWithState } from "./_components/theme-toggle-with-state"
 
+
 // Function to get component by ID
 async function getComponentById(id: string) {
   // Input validation for ID
@@ -24,14 +25,7 @@ async function getComponentById(id: string) {
     console.error("Invalid component ID: empty or null");
     return null;
   }
-  
-  // Additional validation for UUID format if you're using UUIDs
-  // Uncomment if your IDs are UUIDs
-  // if (!isValidUUID(id)) {
-  //   console.error("Invalid component ID format");
-  //   return null;
-  // }
-  
+
   const supabase = await createClient()
   
   // Get the current user

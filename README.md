@@ -184,8 +184,8 @@ Row-level security (RLS) policies ensure:
 ### 2. Backend API Updates
 - [x] Update component fetch API to include related files
 - [x] Update component fetch API to include dependencies
-- [ ] Create API endpoint for fetching component dependencies
-- [ ] Create API endpoint for managing file relationships
+- [x] Create API endpoint for fetching component dependencies
+- [x] Create API endpoint for managing file relationships
 - [ ] Update component creation to handle entry file designation
 - [ ] Update error handling for multi-file components
 
