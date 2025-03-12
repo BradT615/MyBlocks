@@ -121,8 +121,6 @@ export async function updateProfileName(fullName: string) {
     }
     
     // Update profile in database too for consistency
-    // Based on the README, profiles table is synced with auth.users via triggers
-    // But let's update it directly as well to ensure consistency
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ full_name: fullName })
@@ -167,8 +165,11 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: 'Avatar image must be less than 2MB' }
     }
     
+    // Generate a random filename instead of including user ID
+    const fileExt = avatarFile.name.split('.').pop()
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
+    
     // Upload avatar to Supabase Storage
-    const fileName = `${user.id}-${Date.now()}.${avatarFile.name.split('.').pop()}`
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('avatars')
@@ -182,31 +183,45 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: uploadError.message }
     }
     
-    // Get public URL for the uploaded avatar
-    const { data: { publicUrl } } = supabase
+    // Store only the file path in user metadata (for future reference)
+    const avatarPath = uploadData.path
+    
+    // Get a signed URL for immediate display
+    const { data } = await supabase
       .storage
       .from('avatars')
-      .getPublicUrl(uploadData.path)
+      .createSignedUrl(avatarPath, 60 * 60 * 24 * 7) // 7-day expiry
     
-    // Update user metadata with new avatar URL
+    const signedUrl = data?.signedUrl || null
+    
+    if (!signedUrl) {
+      return { error: 'Failed to generate signed URL for avatar' }
+    }
+    
+    // Update user metadata with avatar info
     const { error: updateError } = await supabase.auth.updateUser({
-      data: { avatar_url: publicUrl }
+      data: { 
+        avatar_path: avatarPath,  // Keep this in metadata for reference
+        avatar_url: signedUrl     // Store the signed URL
+      }
     })
     
     if (updateError) {
-      console.error('Error updating user with avatar URL:', updateError)
+      console.error('Error updating user with avatar info:', updateError)
       return { error: updateError.message }
     }
     
-    // Update profile in database too
+    // Update profile in database - only with avatar_url field which exists
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ avatar_url: publicUrl })
+      .update({ 
+        avatar_url: signedUrl  // Only update the avatar_url column
+      })
       .eq('id', user.id)
     
     if (profileError) {
       console.error('Error updating profile with avatar URL:', profileError)
-      // Not returning error here as the auth update succeeded
+      return { error: `Failed to update profile: ${profileError.message}` }
     }
     
     // Revalidate settings page
@@ -214,7 +229,7 @@ export async function updateProfileAvatar(formData: FormData) {
     
     return { 
       success: true,
-      avatarUrl: publicUrl
+      avatarUrl: signedUrl
     }
   } catch (error) {
     console.error('Unexpected error updating avatar:', error)
@@ -234,34 +249,30 @@ export async function removeProfileAvatar() {
       return { error: 'You must be logged in to update your profile' }
     }
     
-    // Get current avatar URL from user data
-    const avatarUrl = user.user_metadata?.avatar_url as string | undefined
+    // Get current avatar path from user data
+    const avatarPath = user.user_metadata?.avatar_path as string | undefined
     
-    if (!avatarUrl) {
+    if (!avatarPath) {
       return { error: 'No avatar to remove' }
     }
     
-    // Extract filename from URL
-    const urlParts = avatarUrl.split('/')
-    const fileName = urlParts[urlParts.length - 1]
+    // Delete file from storage
+    const { error: removeError } = await supabase
+      .storage
+      .from('avatars')
+      .remove([avatarPath])
     
-    // Delete file from storage if it's in our storage bucket
-    // This is a best-effort operation - we'll update the profile even if this fails
-    if (avatarUrl.includes('avatars')) {
-      try {
-        await supabase
-          .storage
-          .from('avatars')
-          .remove([fileName])
-      } catch (err) {
-        console.error('Error removing avatar file from storage:', err)
-        // Continue with profile update even if file deletion fails
-      }
+    if (removeError) {
+      console.error('Error removing avatar file from storage:', removeError)
+      // Continue with profile update even if file deletion fails
     }
     
-    // Update user metadata to remove avatar URL
+    // Update user metadata to remove avatar info
     const { error: updateError } = await supabase.auth.updateUser({
-      data: { avatar_url: null }
+      data: { 
+        avatar_path: null,
+        avatar_url: null
+      }
     })
     
     if (updateError) {
@@ -269,15 +280,17 @@ export async function removeProfileAvatar() {
       return { error: updateError.message }
     }
     
-    // Update profile in database too
+    // Update profile in database - only with avatar_url
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ avatar_url: null })
+      .update({ 
+        avatar_url: null  // Only update the avatar_url column
+      })
       .eq('id', user.id)
     
     if (profileError) {
       console.error('Error updating profile to remove avatar:', profileError)
-      // Not returning error here as the auth update succeeded
+      return { error: `Failed to update profile: ${profileError.message}` }
     }
     
     // Revalidate settings page
