@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 async function getUserProfile() {
   const supabase = await createClient()
   
-  // Get current authenticated user
+  // Get current authenticated user using getUser() for security
   const { data: { user }, error: userError } = await supabase.auth.getUser()
   
   if (userError || !user) {
