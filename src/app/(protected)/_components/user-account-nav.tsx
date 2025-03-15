@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -12,39 +11,23 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createClient } from "@/utils/supabase/client"
-import { User } from "@supabase/supabase-js"
 import { LayoutDashboard, Settings, LogOut, Home, Sun, Moon, Monitor, Paintbrush } from "lucide-react"
 import { useTheme } from "next-themes"
 
-export function UserAccountNav() {
+interface UserAccountNavProps {
+  user: {
+    id: string;
+    email?: string | null;
+    user_metadata?: {
+      full_name?: string;
+      avatar_url?: string;
+    };
+  }
+}
+
+export function UserAccountNav({ user }: UserAccountNavProps) {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
   const { setTheme } = useTheme()
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  
-  // Fetch user data on component mount
-  useEffect(() => {
-    const supabase = createClient()
-    
-    async function getUser() {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-    
-    getUser()
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-    
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
   
   // Get user initials for avatar fallback
   const getUserInitials = () => {
@@ -72,18 +55,27 @@ export function UserAccountNav() {
   }
   
   const handleSignOut = async () => {
-    await fetch("/auth/signout", { method: "POST" })
-    router.refresh()
+    try {
+      await fetch("/auth/signout", { 
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      router.push("/")
+      router.refresh()
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
   
-  // Handle theme change without closing the dropdown
+  // Handle theme change
   const handleThemeChange = (theme: string) => {
-    // Prevent event propagation to avoid dropdown closing
     setTheme(theme)
   }
 
   return (
-    <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen} modal={false}>
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
@@ -91,7 +83,7 @@ export function UserAccountNav() {
               <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
             ) : null}
             <AvatarFallback className="bg-primary/10 text-foreground font-medium">
-              {loading ? "..." : getUserInitials()}
+              {getUserInitials()}
             </AvatarFallback>
           </Avatar>
         </Button>
