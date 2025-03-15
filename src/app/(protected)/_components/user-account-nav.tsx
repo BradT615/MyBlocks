@@ -1,6 +1,7 @@
+// src/app/(protected)/_components/user-account-nav.tsx
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import {
@@ -12,53 +13,29 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { createClient } from "@/utils/supabase/client"
-import { User } from "@supabase/supabase-js"
 import { LayoutDashboard, Settings, LogOut, Home, Sun, Moon, Monitor, Paintbrush } from "lucide-react"
 import { useTheme } from "next-themes"
+import { useUser } from '@/context/user-context'
 
 export function UserAccountNav() {
   const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const { user, profile, loading } = useUser()
   const { setTheme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   
-  // Fetch user data on component mount
-  useEffect(() => {
-    const supabase = createClient()
-    
-    async function getUser() {
-      setLoading(true)
-      const { data: { user } } = await supabase.auth.getUser()
-      setUser(user)
-      setLoading(false)
-    }
-    
-    getUser()
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null)
-    })
-    
-    return () => {
-      subscription.unsubscribe()
-    }
-  }, [])
-  
   // Get user initials for avatar fallback
   const getUserInitials = () => {
-    if (!user) return "U"
+    if (!profile) return "U"
     
-    if (user.user_metadata?.full_name) {
-      const names = user.user_metadata.full_name.split(' ')
+    if (profile.full_name) {
+      const names = profile.full_name.split(' ')
       if (names.length >= 2) {
         return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
       }
-      return user.user_metadata.full_name.charAt(0).toUpperCase()
+      return profile.full_name.charAt(0).toUpperCase()
     }
     
-    if (user.email) {
+    if (user?.email) {
       const emailName = user.email.split('@')[0]
       // Try to extract initials from email
       const parts = emailName.split(/[._-]/)
@@ -87,8 +64,8 @@ export function UserAccountNav() {
       <DropdownMenuTrigger asChild>
         <Button className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            {user?.user_metadata?.avatar_url ? (
-              <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
+            {profile?.avatar_url ? (
+              <AvatarImage src={profile.avatar_url} alt="Profile" />
             ) : null}
             <AvatarFallback className="bg-primary/10 text-foreground font-medium">
               {loading ? "..." : getUserInitials()}
@@ -100,7 +77,7 @@ export function UserAccountNav() {
         {/* User Info */}
         <div className="px-4 py-3">
           <p className="font-medium text-sm">
-            {user?.user_metadata?.full_name || "MyBlocks User"}
+            {profile?.full_name || "MyBlocks User"}
           </p>
           <p className="text-xs text-muted-foreground truncate">
             {user?.email || "user@example.com"}

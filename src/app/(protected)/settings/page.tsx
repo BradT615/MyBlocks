@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+// src/app/(protected)/settings/page.tsx
 import { createClient } from "@/utils/supabase/server"
 import { SettingsClient } from './_components/settings-client'
 import { Metadata } from "next"
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 async function getUserProfile() {
   const supabase = await createClient()
   
-  // Get current authenticated user using getUser() for security
+  // Get current authenticated user
   const { data: { user }, error: userError } = await supabase.auth.getUser()
   
   if (userError || !user) {
@@ -29,7 +29,6 @@ async function getUserProfile() {
   if (profileError || !profile) {
     // User is authenticated but profile not found - this shouldn't happen
     // due to trigger function that creates profile on signup,
-    // but let's handle it gracefully
     console.error('Profile not found for authenticated user:', profileError)
     return {
       id: user.id,
@@ -49,11 +48,5 @@ async function getUserProfile() {
 
 export default async function SettingsPage() {
   const profile = await getUserProfile()
-  
-  // If no profile or user, redirect to login
-  if (!profile) {
-    redirect('/login')
-  }
-  
-  return <SettingsClient profile={profile} />
+  return <SettingsClient profile={profile!} />
 }

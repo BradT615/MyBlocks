@@ -8,7 +8,7 @@ export async function updateProfileEmail(email: string, otp?: string) {
   try {
     const supabase = await createClient()
     
-    // Get current user with getUser() for security
+    // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
@@ -40,8 +40,8 @@ export async function updateProfileEmail(email: string, otp?: string) {
         return { error: verifyError.message || 'Invalid verification code' }
       }
 
-      // Revalidate settings page
-      revalidatePath('/settings')
+      // Revalidate all pages to refresh user data everywhere
+      revalidatePath('/', 'layout')
       
       return { success: true }
     } else {
@@ -69,7 +69,7 @@ export async function resendEmailVerification(email: string) {
   try {
     const supabase = await createClient()
     
-    // Get current user with getUser() for security
+    // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
@@ -103,7 +103,7 @@ export async function updateProfileName(fullName: string) {
   try {
     const supabase = await createClient()
     
-    // Get current user with getUser() for security
+    // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
@@ -131,8 +131,8 @@ export async function updateProfileName(fullName: string) {
       // Not returning error here as the auth update succeeded
     }
     
-    // Revalidate settings page
-    revalidatePath('/settings')
+    // Revalidate all pages to refresh user data everywhere
+    revalidatePath('/', 'layout')
     
     return { success: true }
   } catch (error) {
@@ -146,7 +146,7 @@ export async function updateProfileAvatar(formData: FormData) {
   try {
     const supabase = await createClient()
     
-    // Get current user with getUser() for security
+    // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
@@ -165,22 +165,17 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: 'Avatar image must be less than 2MB' }
     }
     
-    // Check if user already has an avatar and get its path
-    const oldAvatarPath = user.user_metadata?.avatar_path as string | undefined
-    
-    // Generate a random filename without user ID to protect privacy
+    // Generate a random filename instead of including user ID
     const fileExt = avatarFile.name.split('.').pop()
-    const randomId = Math.random().toString(36).substring(2)
-    const timestamp = Date.now()
-    const fileName = `avatar-${randomId}-${timestamp}.${fileExt}`
+    const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
     
-    // Upload avatar to Supabase Storage (avatars bucket should be set as public)
+    // Upload avatar to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('avatars')
       .upload(fileName, avatarFile, {
         cacheControl: '3600',
-        upsert: true // Use upsert in case user is updating an existing avatar with same name
+        upsert: false
       })
     
     if (uploadError) {
@@ -188,26 +183,26 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: uploadError.message }
     }
     
-    // Store the file path in user metadata
+    // Store only the file path in user metadata (for future reference)
     const avatarPath = uploadData.path
     
-    // Get public URL directly since bucket is public
-    const { data: publicUrlData } = supabase
+    // Get a signed URL for immediate display
+    const { data } = await supabase
       .storage
       .from('avatars')
-      .getPublicUrl(avatarPath)
+      .createSignedUrl(avatarPath, 60 * 60 * 24 * 7) // 7-day expiry
     
-    const publicUrl = publicUrlData?.publicUrl
+    const signedUrl = data?.signedUrl || null
     
-    if (!publicUrl) {
-      return { error: 'Failed to generate public URL for avatar' }
+    if (!signedUrl) {
+      return { error: 'Failed to generate signed URL for avatar' }
     }
     
     // Update user metadata with avatar info
     const { error: updateError } = await supabase.auth.updateUser({
       data: { 
         avatar_path: avatarPath,  // Keep this in metadata for reference
-        avatar_url: publicUrl     // Store the public URL
+        avatar_url: signedUrl     // Store the signed URL
       }
     })
     
@@ -216,11 +211,11 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: updateError.message }
     }
     
-    // Update profile in database with public URL
+    // Update profile in database - only with avatar_url field which exists
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ 
-        avatar_url: publicUrl
+        avatar_url: signedUrl  // Only update the avatar_url column
       })
       .eq('id', user.id)
     
@@ -229,26 +224,12 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: `Failed to update profile: ${profileError.message}` }
     }
     
-    // Delete the old avatar file if it exists
-    if (oldAvatarPath && oldAvatarPath !== avatarPath) {
-      // Attempt to delete the old file, but don't stop the process if deletion fails
-      const { error: deleteError } = await supabase
-        .storage
-        .from('avatars')
-        .remove([oldAvatarPath])
-      
-      if (deleteError) {
-        // Log the error but continue with the update
-        console.error('Error deleting old avatar:', deleteError)
-      }
-    }
-    
-    // Revalidate settings page
-    revalidatePath('/settings')
+    // Revalidate all pages to refresh user data everywhere
+    revalidatePath('/', 'layout')
     
     return { 
       success: true,
-      avatarUrl: publicUrl
+      avatarUrl: signedUrl
     }
   } catch (error) {
     console.error('Unexpected error updating avatar:', error)
@@ -261,7 +242,7 @@ export async function removeProfileAvatar() {
   try {
     const supabase = await createClient()
     
-    // Get current user with getUser() for security
+    // Get current user
     const { data: { user }, error: userError } = await supabase.auth.getUser()
     
     if (userError || !user) {
@@ -276,8 +257,6 @@ export async function removeProfileAvatar() {
     }
     
     // Delete file from storage
-    // Only the file owner should be able to delete their avatar
-    // This is enforced through Supabase Storage RLS policies
     const { error: removeError } = await supabase
       .storage
       .from('avatars')
@@ -301,11 +280,11 @@ export async function removeProfileAvatar() {
       return { error: updateError.message }
     }
     
-    // Update profile in database to remove avatar_url
+    // Update profile in database - only with avatar_url
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ 
-        avatar_url: null
+        avatar_url: null  // Only update the avatar_url column
       })
       .eq('id', user.id)
     
@@ -314,8 +293,8 @@ export async function removeProfileAvatar() {
       return { error: `Failed to update profile: ${profileError.message}` }
     }
     
-    // Revalidate settings page
-    revalidatePath('/settings')
+    // Revalidate all pages to refresh user data everywhere
+    revalidatePath('/', 'layout')
     
     return { success: true }
   } catch (error) {

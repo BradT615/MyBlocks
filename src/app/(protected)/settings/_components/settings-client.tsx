@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useTransition } from 'react'
+import React, { useState, useRef, useTransition, useMemo } from 'react'
 import Image from 'next/image'
 import { DashboardHeader } from '@/app/(protected)/_components/dashboard-header'
 import { Button } from '@/components/ui/button'
@@ -33,30 +33,47 @@ import {
   removeProfileAvatar,
   resendEmailVerification
 } from '../actions'
+import { useUser } from '@/context/user-context'
 
 interface SettingsClientProps {
   profile: {
-    id: string
-    email: string
-    fullName: string
-    avatarUrl: string | null
+    id: string;
+    email: string;
+    fullName: string;
+    avatarUrl: string | null;
   }
 }
 
-export function SettingsClient({ profile }: SettingsClientProps) {
-  const [isPending, startTransition] = useTransition()
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function SettingsClient({ profile: initialProfile }: SettingsClientProps) {
+  const { profile: contextProfile, refreshUser } = useUser();
+  const [isPending, startTransition] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Create a properly typed combined profile
+  const currentProfile = useMemo(() => {
+    // First ensure we have a single source of truth
+    return {
+      id: contextProfile?.id || initialProfile.id,
+      email: contextProfile?.email || initialProfile.email || '',
+      // Use either naming convention - contextProfile might use either depending on where it's from
+      fullName: contextProfile?.fullName || contextProfile?.full_name || initialProfile.fullName || '',
+      avatarUrl: contextProfile?.avatarUrl || contextProfile?.avatar_url || initialProfile.avatarUrl || null,
+      // Keep original properties for the useEffect
+      full_name: contextProfile?.full_name || '',
+      avatar_url: contextProfile?.avatar_url || null
+    };
+  }, [contextProfile, initialProfile]);
   
   // State for editable fields
-  const [isEditingEmail, setIsEditingEmail] = useState(false)
-  const [isEditingName, setIsEditingName] = useState(false)
-  const [email, setEmail] = useState(profile.email || '')
-  const [fullName, setFullName] = useState(profile.fullName || '')
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl || '')
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [email, setEmail] = useState(currentProfile.email);
+  const [fullName, setFullName] = useState(currentProfile.fullName);
+  const [avatarUrl, setAvatarUrl] = useState(currentProfile.avatarUrl || '');
   
   // Track changes to determine if we need to save
-  const [emailChanged, setEmailChanged] = useState(false)
-  const [nameChanged, setNameChanged] = useState(false)
+  const [emailChanged, setEmailChanged] = useState(false);
+  const [nameChanged, setNameChanged] = useState(false);
   
   // Status for UI feedback
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -74,6 +91,15 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   const [isResending, setIsResending] = useState(false)
   const [countdown, setCountdown] = useState(60)
   const [canResend, setCanResend] = useState(false)
+  
+  // Update state if profile changes from context
+  React.useEffect(() => {
+    if (contextProfile) {
+      setEmail(contextProfile.email || '')
+      setFullName(contextProfile.full_name || '')
+      setAvatarUrl(contextProfile.avatar_url || '')
+    }
+  }, [contextProfile])
   
   // Handle countdown for resend button
   React.useEffect(() => {
@@ -94,7 +120,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   // Handle email change
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value)
-    if (e.target.value !== profile.email) {
+    if (e.target.value !== currentProfile.email) {
       setEmailChanged(true)
     } else {
       setEmailChanged(false)
@@ -103,13 +129,13 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   
   // Handle name change
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFullName(e.target.value)
-    if (e.target.value !== profile.fullName) {
-      setNameChanged(true)
+    setFullName(e.target.value);
+    if (e.target.value !== currentProfile.fullName) {
+      setNameChanged(true);
     } else {
-      setNameChanged(false)
+      setNameChanged(false);
     }
-  }
+  };
 
   // Handle initiating email change
   const handleSaveEmail = () => {
@@ -179,6 +205,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           setIsVerifying(false)
           // Update the displayed email
           setEmail(emailToVerify)
+          
+          // Refresh user context
+          refreshUser()
         }
       } catch {
         setStatusMessage({
@@ -256,6 +285,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           })
           setIsEditingName(false)
           setNameChanged(false)
+          
+          // Refresh user context
+          refreshUser()
         }
       } catch {
         setStatusMessage({
@@ -310,6 +342,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           })
           // Update local state with new avatar URL
           setAvatarUrl(result.avatarUrl || '')
+          
+          // Refresh user context
+          refreshUser()
         }
       } catch {
         setStatusMessage({
@@ -346,6 +381,9 @@ export function SettingsClient({ profile }: SettingsClientProps) {
           })
           // Update local state
           setAvatarUrl('')
+          
+          // Refresh user context
+          refreshUser()
         }
       } catch {
         setStatusMessage({
