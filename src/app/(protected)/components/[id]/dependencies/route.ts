@@ -1,9 +1,13 @@
-// src/app/api/components/[id]/dependencies/route.ts
-import { NextResponse } from 'next/server'
+// src/app/(protected)/components/[id]/dependencies/route.ts
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
 // GET: Fetch all dependencies for a component
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -15,7 +19,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const { data: component } = await supabase
     .from('components')
     .select('profile_id, is_public')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -31,7 +35,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const { data, error } = await supabase
     .from('component_dependencies')
     .select('*')
-    .eq('component_id', params.id)
+    .eq('component_id', id)
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -41,7 +45,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // POST: Add a new dependency to a component
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -53,7 +61,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -80,7 +88,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: existingDep } = await supabase
     .from('component_dependencies')
     .select('id')
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .eq('package_name', package_name)
     .maybeSingle()
     
@@ -94,7 +102,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data, error } = await supabase
     .from('component_dependencies')
     .insert({
-      component_id: params.id,
+      component_id: id,
       package_name,
       package_version,
       is_dev_dependency,
@@ -110,7 +118,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 // PATCH: Update an existing dependency
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -122,7 +134,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -147,7 +159,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .from('component_dependencies')
     .select('id')
     .eq('id', dependency_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .single()
     
   if (!existingDep) {
@@ -164,7 +176,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     .from('component_dependencies')
     .update(updates)
     .eq('id', dependency_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .select()
   
   if (error) {
@@ -175,8 +187,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 }
 
 // DELETE: Remove a dependency
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const url = new URL(request.url)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const url = request.nextUrl
   const dependencyId = url.searchParams.get('dependency_id')
   
   if (!dependencyId) {
@@ -194,7 +210,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -211,7 +227,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     .from('component_dependencies')
     .delete()
     .eq('id', dependencyId)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

@@ -1,5 +1,5 @@
-// src/app/api/components/[id]/relationships/route.ts
-import { NextResponse } from 'next/server'
+// src/app/(protected)/components/[id]/relationships/route.ts
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 import { SupabaseClient } from '@supabase/supabase-js'
 
@@ -69,7 +69,11 @@ async function checkForCircularDependencies(
 }
 
 // GET: Fetch all file relationships for a component
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -81,7 +85,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const { data: component } = await supabase
     .from('components')
     .select('profile_id, is_public')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -105,7 +109,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       component_files!source_file_rel(id, filename),
       component_files!target_file_rel(id, filename)
     `)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -115,7 +119,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // POST: Create a new file relationship
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -127,7 +135,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -160,7 +168,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .from('component_files')
     .select('id')
     .eq('id', source_file_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .single()
     
   if (!sourceFile) {
@@ -173,7 +181,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     .from('component_files')
     .select('id')
     .eq('id', target_file_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .single()
     
   if (!targetFile) {
@@ -185,7 +193,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   // Check for circular dependencies
   const hasCircular = await checkForCircularDependencies(
     supabase, 
-    params.id, 
+    id, 
     source_file_id, 
     target_file_id
   )
@@ -200,7 +208,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: existingRel } = await supabase
     .from('file_relationships')
     .select('id')
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .eq('source_file_id', source_file_id)
     .eq('target_file_id', target_file_id)
     .maybeSingle()
@@ -215,7 +223,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data, error } = await supabase
     .from('file_relationships')
     .insert({
-      component_id: params.id,
+      component_id: id,
       source_file_id,
       target_file_id,
       import_path,
@@ -232,7 +240,11 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 // PUT: Update an existing file relationship
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -244,7 +256,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -273,7 +285,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     .from('file_relationships')
     .select('id')
     .eq('id', relationship_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .single()
     
   if (!existingRel) {
@@ -290,7 +302,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     .from('file_relationships')
     .update(updates)
     .eq('id', relationship_id)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .select()
   
   if (error) {
@@ -301,8 +313,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 }
 
 // DELETE: Remove a file relationship
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const url = new URL(request.url)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const url = request.nextUrl
   const relationshipId = url.searchParams.get('relationship_id')
   
   if (!relationshipId) {
@@ -320,7 +336,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -337,7 +353,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     .from('file_relationships')
     .delete()
     .eq('id', relationshipId)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

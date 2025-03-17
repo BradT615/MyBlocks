@@ -1,5 +1,5 @@
-// src/app/api/components/[id]/tags/route.ts
-import { NextResponse } from 'next/server'
+// src/app/(protected)/components/[id]/tags/route.ts
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
 // Define interfaces for better type safety
@@ -16,7 +16,11 @@ interface ComponentTag {
 }
 
 // GET: Fetch all tags for a component
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -28,7 +32,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   const { data: component } = await supabase
     .from('components')
     .select('profile_id, is_public')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -52,7 +56,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         color
       )
     `)
-    .eq('component_id', params.id)
+    .eq('component_id', id)
   
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -81,7 +85,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 }
 
 // POST: Add a tag to a component
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -93,7 +101,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -151,7 +159,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data: existingComponentTag } = await supabase
     .from('component_tags')
     .select('id')
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .eq('tag_id', tagId)
     .maybeSingle()
     
@@ -165,7 +173,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
   const { data, error } = await supabase
     .from('component_tags')
     .insert({
-      component_id: params.id,
+      component_id: id,
       tag_id: tagId,
       created_at: new Date().toISOString()
     })
@@ -203,8 +211,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 }
 
 // DELETE: Remove a tag from a component
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
-  const url = new URL(request.url)
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
+  const url = request.nextUrl
   const tagId = url.searchParams.get('tag_id')
   
   if (!tagId) {
@@ -222,7 +234,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -238,7 +250,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { error } = await supabase
     .from('component_tags')
     .delete()
-    .eq('component_id', params.id)
+    .eq('component_id', id)
     .eq('tag_id', tagId)
   
   if (error) {
@@ -249,7 +261,11 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 }
 
 // PATCH: Batch update tags for a component
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   
@@ -261,7 +277,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const { data: component } = await supabase
     .from('components')
     .select('profile_id')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
     
   if (!component) {
@@ -289,7 +305,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const { data: currentTags } = await supabase
       .from('component_tags')
       .select('id, tag_id')
-      .eq('component_id', params.id)
+      .eq('component_id', id)
     
     const currentTagIds = currentTags?.map(tag => tag.tag_id) || [];
     const requestedTagIds: string[] = [];
@@ -336,7 +352,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         await supabase
           .from('component_tags')
           .insert({
-            component_id: params.id,
+            component_id: id,
             tag_id: tagId,
             created_at: new Date().toISOString()
           })
@@ -350,7 +366,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       await supabase
         .from('component_tags')
         .delete()
-        .eq('component_id', params.id)
+        .eq('component_id', id)
         .in('tag_id', tagsToRemove)
     }
     
@@ -365,7 +381,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           color
         )
       `)
-      .eq('component_id', params.id)
+      .eq('component_id', id)
     
     if (error) throw new Error(error.message);
     
