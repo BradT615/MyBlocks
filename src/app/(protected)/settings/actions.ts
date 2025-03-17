@@ -110,7 +110,7 @@ export async function updateProfileName(fullName: string) {
       return { error: 'You must be logged in to update your profile' }
     }
     
-    // Update user metadata with new name
+    // Update user metadata with new name - only update auth.users, not profiles
     const { error: updateError } = await supabase.auth.updateUser({
       data: { full_name: fullName }
     })
@@ -118,17 +118,6 @@ export async function updateProfileName(fullName: string) {
     if (updateError) {
       console.error('Error updating name:', updateError)
       return { error: updateError.message }
-    }
-    
-    // Update profile in database too for consistency
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ full_name: fullName })
-      .eq('id', user.id)
-    
-    if (profileError) {
-      console.error('Error updating profile:', profileError)
-      // Not returning error here as the auth update succeeded
     }
     
     // Revalidate settings page
@@ -203,7 +192,7 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: 'Failed to generate public URL for avatar' }
     }
     
-    // Update user metadata with avatar info
+    // Update user metadata with avatar info - only update auth.users, not profiles
     const { error: updateError } = await supabase.auth.updateUser({
       data: { 
         avatar_path: avatarPath,  // Keep this in metadata for reference
@@ -214,19 +203,6 @@ export async function updateProfileAvatar(formData: FormData) {
     if (updateError) {
       console.error('Error updating user with avatar info:', updateError)
       return { error: updateError.message }
-    }
-    
-    // Update profile in database with public URL
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ 
-        avatar_url: publicUrl
-      })
-      .eq('id', user.id)
-    
-    if (profileError) {
-      console.error('Error updating profile with avatar URL:', profileError)
-      return { error: `Failed to update profile: ${profileError.message}` }
     }
     
     // Delete the old avatar file if it exists
@@ -288,7 +264,7 @@ export async function removeProfileAvatar() {
       // Continue with profile update even if file deletion fails
     }
     
-    // Update user metadata to remove avatar info
+    // Update user metadata to remove avatar info - only update auth.users, not profiles
     const { error: updateError } = await supabase.auth.updateUser({
       data: { 
         avatar_path: null,
@@ -299,19 +275,6 @@ export async function removeProfileAvatar() {
     if (updateError) {
       console.error('Error updating user to remove avatar:', updateError)
       return { error: updateError.message }
-    }
-    
-    // Update profile in database to remove avatar_url
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .update({ 
-        avatar_url: null
-      })
-      .eq('id', user.id)
-    
-    if (profileError) {
-      console.error('Error updating profile to remove avatar:', profileError)
-      return { error: `Failed to update profile: ${profileError.message}` }
     }
     
     // Revalidate settings page

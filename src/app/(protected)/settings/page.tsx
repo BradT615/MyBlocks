@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Manage your account settings",
 }
 
-// Get user profile data from Supabase
+// Get user profile data from Supabase with auth.users as primary source
 async function getUserProfile() {
   const supabase = await createClient()
   
@@ -19,31 +19,21 @@ async function getUserProfile() {
     return null
   }
   
-  // Get user profile data
+  // Get user profile data as a fallback
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
   
-  if (profileError || !profile) {
-    // User is authenticated but profile not found - this shouldn't happen
-    // due to trigger function that creates profile on signup,
-    // but let's handle it gracefully
-    console.error('Profile not found for authenticated user:', profileError)
-    return {
-      id: user.id,
-      email: user.email || '',
-      fullName: user.user_metadata?.full_name || '',
-      avatarUrl: user.user_metadata?.avatar_url || null
-    }
-  }
-  
+  // Prioritize auth.users data over profiles table
+  // This ensures consistency with what's shown in the user account navigation
   return {
     id: user.id,
     email: user.email || '',
-    fullName: profile.full_name || '',
-    avatarUrl: profile.avatar_url || null
+    // Use auth.users metadata as primary source
+    fullName: user.user_metadata?.full_name || profile?.full_name || '',
+    avatarUrl: user.user_metadata?.avatar_url || profile?.avatar_url || null
   }
 }
 
