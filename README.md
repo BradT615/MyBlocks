@@ -34,7 +34,7 @@ The platform solves collaboration challenges between design and development team
 ### Deployment
 - **Vercel**: Hosting and deployment platform
 
-# Database Architecture - MyBlocks
+## Database Architecture - MyBlocks
 
 ## Overview
 
@@ -49,7 +49,36 @@ The database is organized around these main entities:
 - **auth.users**: Managed by Supabase Auth - contains credentials and basic user info
 - **profiles**: Bridge table connecting auth.users to application data
   - Contains user profile information (name, avatar, etc.)
-  - Created automatically when a user registers
+  - Created automatically when a user registers via a database trigger
+
+### Automatic Profile Creation
+
+When a new user signs up, a database trigger automatically creates a corresponding profile record:
+
+```sql
+-- Function to create a profile when a new user signs up
+create function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, full_name, avatar_url, created_at, updated_at)
+  values (
+    new.id, 
+    new.raw_user_meta_data ->> 'full_name', 
+    new.raw_user_meta_data ->> 'avatar_url',
+    now(),
+    now()
+  );
+  return new;
+end;
+$$;
+
+-- Trigger the function every time a user is created
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_user();
 
 ### Component Management
 
