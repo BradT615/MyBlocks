@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Manage your account settings",
 }
 
-// Get user profile data from Supabase with auth.users as primary source
+// Get user profile data from Supabase
 async function getUserProfile() {
   const supabase = await createClient()
   
@@ -19,19 +19,16 @@ async function getUserProfile() {
     return null
   }
   
-  // Get user profile data as a fallback
-  const { data: profile, error: profileError } = await supabase
+  // Get user profile data from profiles table
+  const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
   
-  // Prioritize auth.users data over profiles table
-  // This ensures consistency with what's shown in the user account navigation
   return {
     id: user.id,
     email: user.email || '',
-    // Use auth.users metadata as primary source
     full_name: profile?.full_name || null,
     avatar_url: profile?.avatar_url || null,
     avatar_path: profile?.avatar_path || null
