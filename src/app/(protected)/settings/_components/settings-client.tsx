@@ -38,8 +38,8 @@ interface SettingsClientProps {
   profile: {
     id: string
     email: string
-    fullName: string
-    avatarUrl: string | null
+    full_name: string | null
+    avatar_url: string | null
   }
 }
 
@@ -51,8 +51,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   const [isEditingEmail, setIsEditingEmail] = useState(false)
   const [isEditingName, setIsEditingName] = useState(false)
   const [email, setEmail] = useState(profile.email || '')
-  const [fullName, setFullName] = useState(profile.fullName || '')
-  const [avatarUrl, setAvatarUrl] = useState(profile.avatarUrl || '')
+  const [fullName, setFullName] = useState(profile.full_name || '')
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url || '')
   
   // Track changes to determine if we need to save
   const [emailChanged, setEmailChanged] = useState(false)
@@ -104,7 +104,7 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   // Handle name change
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFullName(e.target.value)
-    if (e.target.value !== profile.fullName) {
+    if (e.target.value !== profile.full_name) {
       setNameChanged(true)
     } else {
       setNameChanged(false)

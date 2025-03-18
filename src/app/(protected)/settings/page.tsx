@@ -32,8 +32,9 @@ async function getUserProfile() {
     id: user.id,
     email: user.email || '',
     // Use auth.users metadata as primary source
-    fullName: user.user_metadata?.full_name || profile?.full_name || '',
-    avatarUrl: user.user_metadata?.avatar_url || profile?.avatar_url || null
+    full_name: profile?.full_name || null,
+    avatar_url: profile?.avatar_url || null,
+    avatar_path: profile?.avatar_path || null
   }
 }
 
