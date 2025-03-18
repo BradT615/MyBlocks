@@ -298,3 +298,53 @@ export async function removeProfileAvatar() {
     return { error: 'An unexpected error occurred' }
   }
 }
+
+// Delete user account
+export async function deleteUserAccount() {
+  try {
+    const supabase = await createClient()
+    
+    // Get current user with getUser() for security
+    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    
+    if (userError || !user) {
+      return { error: 'You must be logged in to delete your account' }
+    }
+    
+    // First, get avatar path to delete from storage
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('avatar_path')
+      .eq('id', user.id)
+      .single()
+    
+    // If user has an avatar, delete it from storage
+    if (profile?.avatar_path) {
+      const { error: removeError } = await supabase
+        .storage
+        .from('avatars')
+        .remove([profile.avatar_path])
+      
+      if (removeError) {
+        console.error('Error removing avatar file from storage:', removeError)
+        // Continue with account deletion even if avatar deletion fails
+      }
+    }
+    
+    // Delete the user from auth.users (this will cascade to profiles due to RLS)
+    const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id)
+    
+    if (deleteError) {
+      console.error('Error deleting user:', deleteError)
+      return { error: deleteError.message || 'Failed to delete account' }
+    }
+    
+    // Sign out the user
+    await supabase.auth.signOut()
+    
+    return { success: true }
+  } catch (error) {
+    console.error('Unexpected error deleting account:', error)
+    return { error: 'An unexpected error occurred' }
+  }
+}

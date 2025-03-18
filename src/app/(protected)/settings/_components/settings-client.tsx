@@ -24,7 +24,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { deleteUserAccount } from '../actions'
 import { OTPInput } from '@/components/ui/input-otp'
 import { 
   updateProfileEmail, 
@@ -59,6 +60,8 @@ export function SettingsClient({ profile }: SettingsClientProps) {
   const [nameChanged, setNameChanged] = useState(false)
   
   // Status for UI feedback
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
   const [isRemovingAvatar, setIsRemovingAvatar] = useState(false)
   const [statusMessage, setStatusMessage] = useState<{
@@ -368,6 +371,34 @@ export function SettingsClient({ profile }: SettingsClientProps) {
     }
     return fullName.charAt(0).toUpperCase()
   }
+
+  const handleDeleteAccount = () => {
+    setIsDeletingAccount(true)
+    
+    startTransition(async () => {
+      try {
+        const result = await deleteUserAccount()
+        if (result.error) {
+          setStatusMessage({
+            type: 'error',
+            message: result.error
+          })
+          setIsDeletingAccount(false)
+          setIsDeleteDialogOpen(false)
+        } else {
+          // Account deleted successfully, redirect happens server-side
+          // We don't need to do anything here as the page will redirect
+        }
+      } catch {
+        setStatusMessage({
+          type: 'error',
+          message: 'An unexpected error occurred while deleting your account'
+        })
+        setIsDeletingAccount(false)
+        setIsDeleteDialogOpen(false)
+      }
+    })
+  }
   
   return (
     <div className="w-full">
@@ -665,7 +696,78 @@ export function SettingsClient({ profile }: SettingsClientProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Danger Zone - Account Deletion */}
+        <Card className="mt-8 border-destructive/20 rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-destructive/5 p-6 border-b border-destructive/20">
+            <div className="flex items-center gap-2 text-destructive mb-2">
+              <AlertCircle className="h-5 w-5" />
+              <h2 className="text-lg font-semibold">Danger Zone</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">Permanently delete your account and all of your content</p>
+          </div>
+          
+          <CardContent className="p-6 space-y-4">
+            <div className="text-sm text-muted-foreground">
+              <p>Once you delete your account, there is no going back. This action is permanent and cannot be undone.</p>
+              <p className="mt-2">All of your data will be permanently removed, including:</p>
+              <ul className="list-disc pl-5 mt-2 space-y-1">
+                <li>Your profile information</li>
+                <li>Your uploaded components</li>
+                <li>Your collections</li>
+                <li>Any other data associated with your account</li>
+              </ul>
+            </div>
+            
+            <Button 
+              variant="destructive" 
+              className="mt-4"
+              onClick={() => setIsDeleteDialogOpen(true)}
+            >
+              Delete Account
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Confirmation Dialog for Account Deletion */}
+      <Dialog 
+        open={isDeleteDialogOpen} 
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogDescription>
+              This action cannot be undone. This will permanently delete your account
+              and remove all of your data from our servers.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+              disabled={isDeletingAccount}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={isDeletingAccount}
+            >
+              {isDeletingAccount ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </span>
+              ) : (
+                "Yes, delete my account"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* OTP Verification Modal */}
       <Dialog open={isOtpModalOpen} onOpenChange={setIsOtpModalOpen}>
