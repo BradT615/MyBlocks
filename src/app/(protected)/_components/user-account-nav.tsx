@@ -18,9 +18,9 @@ interface UserAccountNavProps {
   user: {
     id: string;
     email?: string | null;
-    user_metadata?: {
-      full_name?: string;
-      avatar_url?: string;
+    profile: {
+      full_name: string | null;
+      avatar_url: string | null;
     };
   }
 }
@@ -33,12 +33,12 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
   const getUserInitials = () => {
     if (!user) return "U"
     
-    if (user.user_metadata?.full_name) {
-      const names = user.user_metadata.full_name.split(' ')
+    if (user.profile.full_name) {
+      const names = user.profile.full_name.split(' ')
       if (names.length >= 2) {
         return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase()
       }
-      return user.user_metadata.full_name.charAt(0).toUpperCase()
+      return user.profile.full_name.charAt(0).toUpperCase()
     }
     
     if (user.email) {
@@ -79,8 +79,8 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
       <DropdownMenuTrigger asChild>
         <Button className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            {user?.user_metadata?.avatar_url ? (
-              <AvatarImage src={user.user_metadata.avatar_url} alt="Profile" />
+            {user.profile.avatar_url ? (
+              <AvatarImage src={user.profile.avatar_url} alt="Profile" />
             ) : null}
             <AvatarFallback className="bg-primary/10 text-foreground font-medium">
               {getUserInitials()}
@@ -92,10 +92,10 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
         {/* User Info */}
         <div className="px-4 py-3">
           <p className="font-medium text-sm">
-            {user?.user_metadata?.full_name || "MyBlocks User"}
+            {user.profile.full_name || "MyBlocks User"}
           </p>
           <p className="text-xs text-muted-foreground truncate">
-            {user?.email || "user@example.com"}
+            {user.email || "user@example.com"}
           </p>
         </div>
         

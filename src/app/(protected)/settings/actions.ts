@@ -110,14 +110,15 @@ export async function updateProfileName(fullName: string) {
       return { error: 'You must be logged in to update your profile' }
     }
     
-    // Update user metadata with new name - only update auth.users, not profiles
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: { full_name: fullName }
-    })
+    // Update profiles table directly (Split Storage Strategy)
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({ full_name: fullName, updated_at: new Date().toISOString() })
+      .eq('id', user.id)
     
-    if (updateError) {
-      console.error('Error updating name:', updateError)
-      return { error: updateError.message }
+    if (profileUpdateError) {
+      console.error('Error updating profile name:', profileUpdateError)
+      return { error: profileUpdateError.message }
     }
     
     // Revalidate settings page
@@ -154,8 +155,14 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: 'Avatar image must be less than 2MB' }
     }
     
-    // Check if user already has an avatar and get its path
-    const oldAvatarPath = user.user_metadata?.avatar_path as string | undefined
+    // Get the current profile to check for existing avatar
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('avatar_path')
+      .eq('id', user.id)
+      .single()
+    
+    const oldAvatarPath = profile?.avatar_path
     
     // Generate a random filename without user ID to protect privacy
     const fileExt = avatarFile.name.split('.').pop()
@@ -163,13 +170,13 @@ export async function updateProfileAvatar(formData: FormData) {
     const timestamp = Date.now()
     const fileName = `avatar-${randomId}-${timestamp}.${fileExt}`
     
-    // Upload avatar to Supabase Storage (avatars bucket should be set as public)
+    // Upload avatar to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase
       .storage
       .from('avatars')
       .upload(fileName, avatarFile, {
         cacheControl: '3600',
-        upsert: true // Use upsert in case user is updating an existing avatar with same name
+        upsert: true
       })
     
     if (uploadError) {
@@ -177,10 +184,10 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: uploadError.message }
     }
     
-    // Store the file path in user metadata
+    // Store the file path
     const avatarPath = uploadData.path
     
-    // Get public URL directly since bucket is public
+    // Get public URL 
     const { data: publicUrlData } = supabase
       .storage
       .from('avatars')
@@ -192,29 +199,29 @@ export async function updateProfileAvatar(formData: FormData) {
       return { error: 'Failed to generate public URL for avatar' }
     }
     
-    // Update user metadata with avatar info - only update auth.users, not profiles
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: { 
-        avatar_path: avatarPath,  // Keep this in metadata for reference
-        avatar_url: publicUrl     // Store the public URL
-      }
-    })
+    // Update profiles table directly (Split Storage Strategy)
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({ 
+        avatar_path: avatarPath,
+        avatar_url: publicUrl,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
     
-    if (updateError) {
-      console.error('Error updating user with avatar info:', updateError)
-      return { error: updateError.message }
+    if (profileUpdateError) {
+      console.error('Error updating profile with avatar:', profileUpdateError)
+      return { error: profileUpdateError.message }
     }
     
     // Delete the old avatar file if it exists
     if (oldAvatarPath && oldAvatarPath !== avatarPath) {
-      // Attempt to delete the old file, but don't stop the process if deletion fails
       const { error: deleteError } = await supabase
         .storage
         .from('avatars')
         .remove([oldAvatarPath])
       
       if (deleteError) {
-        // Log the error but continue with the update
         console.error('Error deleting old avatar:', deleteError)
       }
     }
@@ -244,16 +251,20 @@ export async function removeProfileAvatar() {
       return { error: 'You must be logged in to update your profile' }
     }
     
-    // Get current avatar path from user data
-    const avatarPath = user.user_metadata?.avatar_path as string | undefined
+    // Get current avatar path from profiles
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('avatar_path')
+      .eq('id', user.id)
+      .single()
+    
+    const avatarPath = profile?.avatar_path
     
     if (!avatarPath) {
       return { error: 'No avatar to remove' }
     }
     
     // Delete file from storage
-    // Only the file owner should be able to delete their avatar
-    // This is enforced through Supabase Storage RLS policies
     const { error: removeError } = await supabase
       .storage
       .from('avatars')
@@ -261,20 +272,21 @@ export async function removeProfileAvatar() {
     
     if (removeError) {
       console.error('Error removing avatar file from storage:', removeError)
-      // Continue with profile update even if file deletion fails
     }
     
-    // Update user metadata to remove avatar info - only update auth.users, not profiles
-    const { error: updateError } = await supabase.auth.updateUser({
-      data: { 
+    // Update profiles table directly (Split Storage Strategy)
+    const { error: profileUpdateError } = await supabase
+      .from('profiles')
+      .update({ 
         avatar_path: null,
-        avatar_url: null
-      }
-    })
+        avatar_url: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id)
     
-    if (updateError) {
-      console.error('Error updating user to remove avatar:', updateError)
-      return { error: updateError.message }
+    if (profileUpdateError) {
+      console.error('Error updating profile to remove avatar:', profileUpdateError)
+      return { error: profileUpdateError.message }
     }
     
     // Revalidate settings page

@@ -20,6 +20,23 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
   if (!user) {
     redirect('/login')
   }
+  
+  // Get profile data from profiles table
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name, avatar_url')
+    .eq('id', user.id)
+    .single()
+
+  // Create a user object with profile data
+  const userData = {
+    id: user.id,
+    email: user.email,
+    profile: {
+      full_name: profile?.full_name || null,
+      avatar_url: profile?.avatar_url || null
+    }
+  }
 
   return (
     <div className="flex min-h-screen relative">
@@ -40,7 +57,7 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
             </Link>
           </div>
           <div className="ml-auto">
-            <UserAccountNav user={user} />
+            <UserAccountNav user={userData} />
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 lg:p-6 mt-16">
