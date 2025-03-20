@@ -1,86 +1,47 @@
 "use client"
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Loader2 } from 'lucide-react'
-import { LiveProvider, LiveEditor, LiveError, LivePreview } from 'react-live'
-import { themes } from 'prism-react-renderer'
-import { useTheme } from 'next-themes'
-import { cn } from '@/lib/utils'
+import { SandpackRenderer } from './sandpack-renderer'
 
 type SupportedLanguage = 'tsx' | 'jsx' | 'js' | 'ts' | 'html' | 'css' | 'scss' | 'less';
+
+// Define a structured file type for better organization
+interface ComponentFile {
+  code: string;
+  filename: string;
+  language: SupportedLanguage;
+  hidden?: boolean;
+  active?: boolean;
+}
 
 interface ComponentRendererProps {
   code: string;
   language?: SupportedLanguage;
   showEditor?: boolean;
-  scope?: Record<string, unknown>; // Using unknown instead of any
+  additionalFiles?: Record<string, string> | ComponentFile[];
+  dependencies?: Record<string, string>;
+  framework?: 'react' | 'vanilla' | 'vue';
+  activePath?: string;
+  autorun?: boolean;
 }
 
 export function ComponentRenderer({
   code,
   language = 'tsx',
   showEditor = false,
-  scope = {}
+  additionalFiles = {},
+  dependencies = {},
+  framework = 'react',
+  activePath,
+  autorun = true
 }: ComponentRendererProps) {
-  const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Memoize default scope to prevent unnecessary re-renders
-  const defaultScope = useMemo(() => ({
-    React,
-    cn,
-    ...React,
-    ...scope
-  }), [scope])
-
-  // Memoize theme to prevent unnecessary re-renders
-  const currentTheme = useMemo(() => 
-    resolvedTheme === 'dark' ? themes.nightOwl : themes.vsLight
-  , [resolvedTheme])
-
-  // Memoized code cleaning function
-  const cleanCode = useCallback((inputCode: string): string => {
-    try {
-      // Remove import statements
-      let cleaned = inputCode
-        .replace(/import\s+.*from\s+['"].*['"]\s*;?/g, '')
-        .replace(/export\s+(interface|default\s+function|function|const|class|type)\s*/g, '')
-        .trim()
-
-      // Remove function declarations and return statement
-      cleaned = cleaned.replace(/function\s*\w*\s*\([^)]*\)\s*{/, '')
-        .replace(/return\s*\(/, '')
-        .replace(/\)\s*;?\s*}/, '')
-        .trim()
-
-      // Remove React.forwardRef wrapper
-      const forwardRefMatch = cleaned.match(/React\.forwardRef\((\([^)]*\))\s*=>/)
-      if (forwardRefMatch) {
-        cleaned = forwardRefMatch[1]
-      }
-
-      return cleaned
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Code cleaning error:', errorMessage)
-      setError(`Preprocessing error: ${errorMessage}`)
-      return '<div>Error processing component</div>'
-    }
-  }, [])
-
-  // Memoize the cleaned code
-  const memoizedCode = useMemo(() => cleanCode(code), [code, cleanCode])
-
-  // Error boundary effect
+  // Only render after component is mounted to prevent hydration issues
   useEffect(() => {
     setMounted(true)
-  }, [])
-
-  // Error handling callback
-  const handleError = useCallback((err: Error) => {
-    console.error('Component rendering error:', err)
-    setError(err.message)
   }, [])
 
   // Prevent rendering if not mounted
@@ -94,41 +55,44 @@ export function ComponentRenderer({
 
   return (
     <div className="w-full">
-      <LiveProvider
-        code={memoizedCode}
-        scope={defaultScope}
-        theme={currentTheme}
-        language={language as SupportedLanguage}
-      >
-        <div className="relative">
-          {/* Error Handling */}
-          {error && (
-            <div className="p-4 border rounded-md bg-destructive/10 text-destructive mb-4">
-              <p className="text-sm font-mono">Error: {error}</p>
-            </div>
-          )}
-          
-          {/* Component Preview */}
-          <div className="rounded-md border bg-background p-6 min-h-[200px] flex items-center justify-center">
-            <LivePreview />
-          </div>
-          
-          {/* Live Error Display */}
-          <LiveError 
-            className="p-4 border rounded-md bg-destructive/10 text-destructive mt-4 font-mono text-sm"
-            onError={handleError}
-          />
-          
-          {/* Optional Live Editor */}
-          {showEditor && (
-            <div className="mt-4 border rounded-md overflow-hidden bg-muted">
-              <LiveEditor 
-                className="font-mono text-sm p-4"
-              />
-            </div>
-          )}
+      {/* Error Handling */}
+      {error && (
+        <div className="p-4 border rounded-md bg-destructive/10 text-destructive mb-4">
+          <p className="text-sm font-mono">Error: {error}</p>
         </div>
-      </LiveProvider>
+      )}
+      
+      {/* Debug info in development mode */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-900/50 rounded text-xs">
+          <details>
+            <summary className="cursor-pointer">Debug Info</summary>
+            <div className="mt-2 space-y-1">
+              <div><strong>Language:</strong> {language}</div>
+              <div><strong>Editor mode:</strong> {showEditor ? 'On' : 'Off'}</div>
+              <div><strong>Framework:</strong> {framework}</div>
+              <div><strong>Additional Files:</strong> {Array.isArray(additionalFiles) 
+                ? additionalFiles.map(f => f.filename).join(', ')
+                : Object.keys(additionalFiles).join(', ')
+              }</div>
+            </div>
+          </details>
+        </div>
+      )}
+      
+      {/* Use Sandpack to render the component */}
+      <div className={`${showEditor ? 'min-h-[450px]' : 'min-h-[200px]'}`}>
+        <SandpackRenderer
+          code={code}
+          language={language}
+          showEditor={showEditor}
+          additionalFiles={additionalFiles}
+          dependencies={dependencies}
+          framework={framework}
+          activePath={activePath}
+          autorun={autorun}
+        />
+      </div>
     </div>
   )
 }
