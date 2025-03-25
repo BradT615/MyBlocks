@@ -6,7 +6,6 @@ import { SandpackRenderer } from './sandpack-renderer'
 
 type SupportedLanguage = 'tsx' | 'jsx' | 'js' | 'ts' | 'html' | 'css' | 'scss' | 'less';
 
-// Define a structured file type for better organization
 interface ComponentFile {
   code: string;
   filename: string;
@@ -37,14 +36,10 @@ export function ComponentRenderer({
   autorun = true
 }: ComponentRendererProps) {
   const [mounted, setMounted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  // Only render after component is mounted to prevent hydration issues
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Prevent rendering if not mounted
   if (!mounted) {
     return (
       <div className="flex items-center justify-center h-64 bg-muted/40">
@@ -55,14 +50,6 @@ export function ComponentRenderer({
 
   return (
     <div className="w-full">
-      {/* Error Handling */}
-      {error && (
-        <div className="p-4 border rounded-md bg-destructive/10 text-destructive mb-4">
-          <p className="text-sm font-mono">Error: {error}</p>
-        </div>
-      )}
-      
-      {/* Debug info in development mode */}
       {process.env.NODE_ENV === 'development' && (
         <div className="mb-4 p-2 bg-yellow-100 dark:bg-yellow-900/30 border border-yellow-300 dark:border-yellow-900/50 rounded text-xs">
           <details>

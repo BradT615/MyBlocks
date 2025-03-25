@@ -1,12 +1,9 @@
+// For sandpack-renderer.tsx
 "use client"
 
 import React, { useState, useEffect } from 'react'
 import {
   Sandpack,
-  SandpackProvider,
-  SandpackLayout,
-  SandpackCodeEditor,
-  SandpackPreview,
 } from '@codesandbox/sandpack-react'
 import { useTheme } from 'next-themes'
 import { sandpackDark } from '@codesandbox/sandpack-themes'
@@ -52,9 +49,7 @@ export function SandpackRenderer({
   showEditor = false,
   additionalFiles = {},
   dependencies = {},
-  framework = 'react',
   activePath,
-  autorun = true
 }: SandpackRendererProps) {
   const { resolvedTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
@@ -119,7 +114,7 @@ body {
       Object.entries(additionalFiles).forEach(([path, content]) => {
         const filePath = path.startsWith('/') ? path : `/${path}`;
         files[filePath] = { 
-          code: typeof content === 'string' ? content : content.toString(),
+          code: typeof content === 'string' ? content : String(content),
           active: activePath === filePath
         };
       });

@@ -147,7 +147,7 @@ export function ComponentUploadModal({
                     className="absolute inset-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, position: "absolute" }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
                     <TabsContent value="basic" className="space-y-6 mt-0 h-full">
@@ -220,7 +220,7 @@ export function ComponentUploadModal({
                     className="absolute inset-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, position: "absolute" }}
+                    exit={{ opacity: 0, }}
                     transition={{ duration: 0.2 }}
                   >
                     <TabsContent value="code" className="space-y-6 mt-0 h-full">
@@ -340,7 +340,7 @@ export function ComponentUploadModal({
                     className="absolute inset-0"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    exit={{ opacity: 0, position: "absolute" }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
                   >
                     <TabsContent value="preview" className="space-y-6 mt-0 h-full">
