@@ -1,10 +1,9 @@
-// src/app/(protected)/_components/sidebar-client.tsx
 "use client"
 
 import { useState, useEffect } from 'react'
 import { SidebarNav } from './sidebar-nav'
 import { cn } from '@/lib/utils'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { PanelLeftClose, PanelLeft } from 'lucide-react'
 
 export function SidebarClient() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -31,9 +30,10 @@ export function SidebarClient() {
     }
   }, [])
 
+  // Remove the useEffect for main content margin since we now handle it in the toggle function
   // Update main content margin when collapse state changes
   useEffect(() => {
-    // Update a CSS custom property for the main content margin
+    // Only run on initial load to set the right margin
     const mainContent = document.querySelector('.main-content');
     if (mainContent && window.innerWidth >= 1024) { // lg breakpoint
       if (isCollapsed) {
@@ -44,13 +44,25 @@ export function SidebarClient() {
         mainContent.classList.add('lg:ml-64');
       }
     }
-  }, [isCollapsed]);
+  }, []); // Empty dependency array means this only runs once
   
   // Update localStorage when collapse state changes
   const toggleCollapsed = () => {
     const newState = !isCollapsed
     setIsCollapsed(newState)
     localStorage.setItem('sidebar-collapsed', String(newState))
+    
+    // Update main content margin immediately without animation
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent && window.innerWidth >= 1024) { // lg breakpoint
+      if (newState) {
+        mainContent.classList.remove('lg:ml-64');
+        mainContent.classList.add('lg:ml-16');
+      } else {
+        mainContent.classList.remove('lg:ml-16');
+        mainContent.classList.add('lg:ml-64');
+      }
+    }
   }
 
   return (
@@ -80,18 +92,13 @@ export function SidebarClient() {
       <div 
         className={cn(
           "fixed top-16 bottom-0 left-0 z-40",
-          "transition-none", // Using custom transition for smoother effect
-          "group", // For hover effects
-          "before:absolute before:inset-0 before:transition-all before:duration-300 before:bg-background",
-          "before:border-r before:border-border/50", // Border is now on the pseudo-element for smoother transition
           "lg:translate-x-0", // Always visible on desktop
           isSidebarOpen ? "translate-x-0" : "-translate-x-full", // Mobile behavior
-          isCollapsed ? "lg:w-16" : "w-64", // Viewport-based width
+          isCollapsed ? "w-16" : "w-64", // Fixed width without transition
+          "before:absolute before:inset-0 before:bg-background",
+          "before:border-r before:border-border/50", // Border is on the pseudo-element
+          "overflow-hidden" // Prevent content from being visible during resize
         )}
-        style={{
-          // Use style for dynamic transition properties
-          transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
-        }}
       >
         {/* Mobile close button */}
         <div className="lg:hidden p-2 border-b border-border/50 flex justify-end relative z-10">
@@ -108,32 +115,36 @@ export function SidebarClient() {
         </div>
         
         {/* Sidebar content with overflow handling */}
-        <div className="flex-1 py-2 overflow-y-auto relative z-10 h-full">
-          <SidebarNav isCollapsed={isCollapsed} />
+        <div className="flex flex-col justify-between relative z-10 h-full">
+          {/* Navigation items */}
+          <div className="flex-1 py-2 overflow-y-auto">
+            <SidebarNav isCollapsed={isCollapsed} />
+          </div>
+          
+          {/* Collapse toggle button at the bottom */}
+          <div className="px-2 py-3 border-t border-border/50">
+            <button
+              onClick={toggleCollapsed}
+              className="flex items-center rounded-md text-sm font-medium h-10 w-full px-3 text-muted-foreground hover:bg-accent hover:text-accent-foreground relative overflow-hidden"
+              aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? (
+                <PanelLeft className="h-5 w-5 flex-shrink-0" style={{ marginLeft: '3px' }} />
+              ) : (
+                <>
+                  <span 
+                    className={isCollapsed ? "opacity-0" : "opacity-100"}
+                    style={{ transition: "opacity 300ms ease" }}
+                  >
+                    Collapse
+                  </span>
+                  <PanelLeftClose className="h-5 w-5 ml-auto flex-shrink-0" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
-        
-        {/* Floating collapse button */}
-        <button
-          onClick={toggleCollapsed}
-          className={cn(
-            "absolute top-1/2 -translate-y-1/2 right-0 -mr-5 z-20",
-            "flex items-center justify-center",
-            "h-10 w-10 rounded-full",
-            "transition-colors bg-accent hover:text-accent-foreground",
-            "border border-border",
-            "text-muted-foreground hover:text-foreground hover:border-border",
-            "opacity-0 group-hover:opacity-100 transition-all duration-200",
-            "hidden lg:flex",
-            "transform scale-90 hover:scale-100"
-          )}
-          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5" />
-          ) : (
-            <ChevronLeft className="h-5 w-5" />
-          )}
-        </button>
       </div>
     </>
   )

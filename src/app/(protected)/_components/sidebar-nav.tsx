@@ -1,4 +1,3 @@
-// src/app/(protected)/_components/sidebar-nav.tsx
 import Link from "next/link"
 import { 
   LayoutDashboard, 
@@ -55,20 +54,22 @@ export function SidebarNav({ isCollapsed = false }: SidebarNavProps) {
           key={item.href}
           href={item.href}
           className={cn(
-            "flex items-center rounded-md text-sm font-medium",
-            "transition-colors hover:bg-accent hover:text-accent-foreground",
-            isCollapsed 
-              ? "justify-center h-10 w-10 p-0 mx-auto" 
-              : "px-3 py-2.5",
-            "text-muted-foreground"
+            "flex items-center rounded-md text-sm font-medium h-10",
+            "hover:bg-accent hover:text-accent-foreground", // No transition on hover
+            "text-muted-foreground relative px-3 w-full overflow-hidden", // Prevent overflow
           )}
           title={isCollapsed ? item.title : undefined}
         >
-          <item.icon className={cn(
-            "h-5 w-5", 
-            isCollapsed ? "" : "mr-2",
-          )} />
-          {!isCollapsed && <span>{item.title}</span>}
+          <item.icon className="h-5 w-5 flex-shrink-0" /> {/* Fixed position with inline style */}
+          <span 
+            className={cn(
+              "ml-3 whitespace-nowrap", // Prevent wrapping
+              { "opacity-0": isCollapsed, "opacity-100": !isCollapsed }
+            )}
+            style={{ transition: "opacity 300ms ease" }}
+          >
+            {item.title}
+          </span>
         </Link>
       ))}
     </div>
