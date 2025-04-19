@@ -40,27 +40,28 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
 
   return (
     <div className="flex min-h-screen relative">
-      {/* Client component for all sidebar functionality */}
+      {/* Fixed Header - Separate from sidebar */}
+      <header className="fixed top-0 left-0 right-0 h-16 border-b border-border/50 px-4 lg:px-6 flex items-center justify-between bg-background z-30">
+        <div className="flex items-center">
+          <Link 
+            href="/dashboard" 
+            className="group flex items-center gap-2 transition-all hover:opacity-90 ml-8 lg:ml-0"
+          >
+            <MyBlocksLogo width={32} height={32} variant="filled" />
+            <span className="text-xl font-bold">MyBlocks</span>
+          </Link>
+        </div>
+        <div className="ml-auto">
+          <UserAccountNav user={userData} />
+        </div>
+      </header>
+
+      {/* Client component for sidebar functionality */}
       <SidebarClient />
 
-      {/* Main Content with Fixed Header */}
-      <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-300">
-        <header className="fixed top-0 right-0 left-0 lg:left-64 h-16 border-b border-border/50 px-4 lg:px-6 flex items-center justify-between bg-background/80 backdrop-blur-sm z-30">
-          <div className="lg:hidden flex items-center">
-            {/* The toggle button is now inserted by SidebarClient */}
-            <Link 
-              href="/dashboard" 
-              className="ml-8 flex items-center gap-2"
-            >
-              <MyBlocksLogo width={24} height={24} variant="filled" />
-              <span className="font-bold">MyBlocks</span>
-            </Link>
-          </div>
-          <div className="ml-auto">
-            <UserAccountNav user={userData} />
-          </div>
-        </header>
-        <main className="flex-1 overflow-auto p-4 lg:p-6 mt-16">
+      {/* Main Content - starts below the header */}
+      <div className="flex-1 flex flex-col lg:ml-64 transition-all duration-400 main-content mt-16">
+        <main className="flex-1 overflow-auto p-4 lg:p-6">
           {children}
         </main>
       </div>

@@ -1,7 +1,5 @@
-"use client"
-
+// src/app/(protected)/_components/sidebar-nav.tsx
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { 
   LayoutDashboard, 
   Code, 
@@ -45,29 +43,34 @@ const navItems: NavItem[] = [
   },
 ]
 
-export function SidebarNav() {
-  const pathname = usePathname()
+interface SidebarNavProps {
+  isCollapsed?: boolean
+}
 
+export function SidebarNav({ isCollapsed = false }: SidebarNavProps) {
   return (
     <div className="space-y-1 px-2 py-2">
-      {navItems.map((item) => {
-        const isActive = pathname === item.href || pathname?.startsWith(`${item.href}/`)
-        
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center rounded-md px-3 py-2.5 text-sm font-medium",
-              "transition-colors hover:bg-accent hover:text-accent-foreground",
-              isActive ? "bg-accent/50 text-accent-foreground" : "transparent text-muted-foreground"
-            )}
-          >
-            <item.icon className={cn("mr-2 h-4 w-4", isActive ? "text-primary" : "text-muted-foreground")} />
-            <span>{item.title}</span>
-          </Link>
-        )
-      })}
+      {navItems.map((item) => (
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            "flex items-center rounded-md text-sm font-medium",
+            "transition-colors hover:bg-accent hover:text-accent-foreground",
+            isCollapsed 
+              ? "justify-center h-10 w-10 p-0 mx-auto" 
+              : "px-3 py-2.5",
+            "text-muted-foreground"
+          )}
+          title={isCollapsed ? item.title : undefined}
+        >
+          <item.icon className={cn(
+            "h-5 w-5", 
+            isCollapsed ? "" : "mr-2",
+          )} />
+          {!isCollapsed && <span>{item.title}</span>}
+        </Link>
+      ))}
     </div>
   )
 }
