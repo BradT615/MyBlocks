@@ -35,11 +35,6 @@ const navItems: NavItem[] = [
     href: "/styles",
     icon: Palette,
   },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: Settings,
-  },
 ]
 
 interface SidebarNavProps {
